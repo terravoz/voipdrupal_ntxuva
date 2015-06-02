@@ -2,7 +2,7 @@
 // $Id$
 /**
  * @file
- * Audio Blog VoIP Scripts and helper functions
+ * Ntxuva VoIP Scripts and helper functions
  */
 
 /**
@@ -10,7 +10,6 @@
  */
 function voipdrupal_ntxuva_voipscript_get_script_names() {
   $script_names[] = 'voipdrupal_ntxuva_welcome_script';
-  //$script_names[] = 'voipdrupal_ntxuva_sms_handler_script';
   return $script_names;
 }
 
@@ -41,8 +40,6 @@ function voipdrupal_ntxuva_voipscript_load_script($script_name, $options = NULL)
       $script->addSay(v('Welcome to the MOPA system.'));
 
       $script->addLabel('language_selection');
-      /*$p_main_menu[] = v("Para Espanol, oprima uno. ", array(), NULL, 'carmen-twilio');
-      $p_main_menu[] = v("Para Portugues, tecle dois. ",  array(), NULL, 'portuguese-brazil');*/
       $p_main_menu[] = v("For Portuguese, press one. For Changana, press two. For English, press three. ");
       $input_options = array(
         '1' => 'portuguese_version',
@@ -70,9 +67,6 @@ function voipdrupal_ntxuva_voipscript_load_script($script_name, $options = NULL)
       $options['voice'] = 'ntxuva-english';
       $script->addGosub('voipdrupal_ntxuva_main_menu_script', $options);
       $script->addGoto('hang_up');
-
-      //$script->addLabel('invalid_option');
-      //$script->addGoto('hang_up');
 
       $script->addLabel('hang_up');
       $script->addSay(v('Thank you for calling the MOPA system.'));
@@ -221,7 +215,6 @@ function voipdrupal_ntxuva_voipscript_load_script($script_name, $options = NULL)
       //$script->addSet('voipscript_hangup_callback', '_voipdrupal_ntxuva_record_on_hang_up');
       $prompt = v("Please record your report after the beep. When done, press the star key. "); // Please, record your message after the beep. To end, press star.
       $timeout = 5;
-      //@todo: check that this works
       $end_key = '*';
       $max_length = 3600; //1 hour
       $script->addRecord($prompt, $timeout, $end_key, $max_length);
@@ -342,7 +335,6 @@ function _voipdrupal_ntxuva_create_request($phone, $location, $service_code, $re
 
   // Validate location
   if (empty($location_result)) {
-    //$reply = "Lamentavelmente, nao conseguimos introduzir o seu pedido. O seu ponto de recolha nao foi reconhecido.";
     return '';
   }
 
