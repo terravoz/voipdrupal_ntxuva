@@ -1,0 +1,871 @@
+<?php
+// $Id$
+require_once(dirname(__FILE__) . DIRECTORY_SEPARATOR . 'voipdrupal_ntxuva.scripts.inc');
+
+/**
+ * Implements hook_menu().
+ */
+function voipdrupal_ntxuva_menu() {
+  $items = array();
+
+  $items['admin/config/ntxuva/voipdrupal'] = array(
+    'title' => 'Configure VoIP Drupal Ntxuva',
+    'description' => 'Settings for VoIP Drupal Ntxuva Module',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('voipdrupal_ntxuva_sms_form'),
+    'access arguments' => array('access administration pages'),
+    'type' => MENU_NORMAL_ITEM,
+  );
+
+  return $items;
+}
+
+/**
+ * Ntxuva Open311 SMS config settings
+ *
+ */
+function voipdrupal_ntxuva_sms_form($form, &$form_state) {
+  global $base_url;
+  $ntxuva_default_endpoint = $base_url . "/georeport/v2";
+
+  $form['voipdrupal_nxtuva_open311_endpoint'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Enter Open311 GeoReport v2 endpoint'),
+    '#default_value' => variable_get('voipdrupal_nxtuva_open311_endpoint', $ntxuva_default_endpoint),
+    '#size' => 100,
+    '#maxlength' => 100,
+    '#description' => t('Open311 GeoReport v2 API Endpoint for SMS interaction'),
+    '#required' => TRUE,
+  );
+
+  $form['services'] = array(
+    '#type' => 'item',
+    '#title' => t('Services'),
+    '#markup' => implode(array_map(function ($v, $k) { return $k{1} . '=' . $v; }, variable_get('voipdrupal_ntxuva_services', array()), array_keys(variable_get('voipdrupal_ntxuva_services', array()))), '<br/>'),
+  );
+
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Refresh Services'),
+    '#submit' => array('voipdrupal_ntxuva_get_services'),
+  );
+
+  return system_settings_form($form);
+}
+
+//@todo: put in cron
+function voipdrupal_ntxuva_get_services($form, $form_state) {
+  $services_json = voipdrupal_ntxuva_call_open311('services');
+  $services = array();
+  foreach($services_json as $service_json) {
+    $services[$service_json['service_code']] = $service_json['service_name'];
+  }
+  variable_set('voipdrupal_ntxuva_services', $services);
+  drupal_set_message('Services refreshed');
+}
+
+function voipdrupal_ntxuva_call_open311($request_id, $type = 'GET', $request = array()) {
+  global $base_url;
+  $ntxuva_default_endpoint = $base_url . "/georeport/v2";
+  $endpoint = variable_get('voipdrupal_nxtuva_open311_endpoint', $ntxuva_default_endpoint);
+
+  $url = "{$endpoint}/{$request_id}.json";
+
+  if($type == 'POST') {
+    $options = array(
+      'http' => array(
+        'method'  => 'POST',
+        'content' => json_encode( $request ),
+        'header'=>  "Content-Type: application/json\r\n" .
+          "Accept: application/json\r\n"
+      )
+    );
+
+    watchdog("voipdrupal_ntxuva", "Preparing JSON: " . print_r($request,true)); // save request for debugging
+
+    $context  = stream_context_create( $options );
+  }
+  else {
+    $context = NULL;
+  }
+dpm($url);
+  // Request status from Open311 Endpoint
+  $json = file_get_contents($url, false, $context);
+  dpm($json);
+  $res = json_decode($json, true);
+  return $res;
+}
+
+
+function voipdrupal_ntxuva_garbage_spots() {
+  $terms = array();
+
+  $terms[] = array(
+    'name' => '033',
+    'description' => 'Magoanine C - Campo schelle',
+    'format' => 'html_email',
+    'weight' => 0,
+    'uuid' => '08de-101',
+    'language' => 'und',
+    'i18n_tsid' => 0,
+    'vocabulary_machine_name' => 'points',
+    'field_lat' => array(
+      'und' => array(
+        0 => array(
+          'value' => -25.84651667,
+          'format' => NULL,
+          'safe_value' => -25.84651667,
+        ),
+      ),
+    ),
+    'field_long' => array(
+      'und' => array(
+        0 => array(
+          'value' => 32.58356667,
+          'format' => NULL,
+          'safe_value' => 32.58356667,
+        ),
+      ),
+    ),
+    'field_address_string' => array(
+      'und' => array(
+        0 => array(
+          'value' => 'Magoanine C - Campo schelle',
+          'format' => NULL,
+          'safe_value' => 'Magoanine C - Campo schelle',
+        ),
+      ),
+    ),
+    'field_geo' => array(
+      'und' => array(
+        0 => array(
+          'lat' => -25.84651667,
+          'lng' => 32.58356667,
+          'lat_sin' => -0.43596189679915,
+          'lat_cos' => 0.89996512406831,
+          'lng_rad' => 0.56869052043458,
+        ),
+      ),
+    ),
+    'field_points_icon' => array(
+      'und' => array(
+        0 => array(
+          'value' => 'remove',
+          'format' => NULL,
+          'safe_value' => 'remove',
+        ),
+      ),
+    ),
+    'field_points_id' => array(
+      'und' => array(
+        0 => array(
+          'value' => '033',
+          'format' => NULL,
+          'safe_value' => '033',
+        ),
+      ),
+    ),
+  );
+  $terms[] = array(
+    'name' => '021',
+    'description' => 'Polana Caniço B - Mercado Chiquelene',
+    'format' => 'html_email',
+    'weight' => 0,
+    'uuid' => '2a1f-101',
+    'language' => 'und',
+    'i18n_tsid' => 0,
+    'vocabulary_machine_name' => 'points',
+    'field_lat' => array(
+      'und' => array(
+        0 => array(
+          'value' => -25.9315,
+          'format' => NULL,
+          'safe_value' => -25.9315,
+        ),
+      ),
+    ),
+    'field_long' => array(
+      'und' => array(
+        0 => array(
+          'value' => 32.60143333,
+          'format' => NULL,
+          'safe_value' => 32.60143333,
+        ),
+      ),
+    ),
+    'field_address_string' => array(
+      'und' => array(
+        0 => array(
+          'value' => 'Polana Caniço B - Mercado Chiquelene',
+          'format' => NULL,
+          'safe_value' => 'Polana Caniço B - Mercado Chiquelene',
+        ),
+      ),
+    ),
+    'field_geo' => array(
+      'und' => array(
+        0 => array(
+          'lat' => -25.9315,
+          'lng' => 32.60143333,
+          'lat_sin' => -0.43729628004889,
+          'lat_cos' => 0.89931749869298,
+          'lng_rad' => 0.56900235247792,
+        ),
+      ),
+    ),
+    'field_points_icon' => array(
+      'und' => array(
+        0 => array(
+          'value' => 'remove',
+          'format' => NULL,
+          'safe_value' => 'remove',
+        ),
+      ),
+    ),
+    'field_points_id' => array(
+      'und' => array(
+        0 => array(
+          'value' => '021',
+          'format' => NULL,
+          'safe_value' => '021',
+        ),
+      ),
+    ),
+  );
+  $terms[] = array(
+    'name' => '041',
+    'description' => 'Inhagoia B - Mercado Informal',
+    'format' => 'html_email',
+    'weight' => 0,
+    'uuid' => '53d0-101',
+    'language' => 'und',
+    'i18n_tsid' => 0,
+    'vocabulary_machine_name' => 'points',
+    'field_lat' => array(
+      'und' => array(
+        0 => array(
+          'value' => -25.91806667,
+          'format' => NULL,
+          'safe_value' => -25.91806667,
+        ),
+      ),
+    ),
+    'field_long' => array(
+      'und' => array(
+        0 => array(
+          'value' => 32.55518333,
+          'format' => NULL,
+          'safe_value' => 32.55518333,
+        ),
+      ),
+    ),
+    'field_address_string' => array(
+      'und' => array(
+        0 => array(
+          'value' => 'Inhagoia B - Mercado Informal',
+          'format' => NULL,
+          'safe_value' => 'Inhagoia B - Mercado Informal',
+        ),
+      ),
+    ),
+    'field_geo' => array(
+      'und' => array(
+        0 => array(
+          'lat' => -25.91806667,
+          'lng' => 32.55518333,
+          'lat_sin' => -0.43708541779405,
+          'lat_cos' => 0.8994200006403,
+          'lng_rad' => 0.56819513769887,
+        ),
+      ),
+    ),
+    'field_points_icon' => array(
+      'und' => array(
+        0 => array(
+          'value' => '041',
+          'format' => NULL,
+          'safe_value' => '041',
+        ),
+      ),
+    ),
+    'field_points_id' => array(
+      'und' => array(
+        0 => array(
+          'value' => '041',
+          'format' => NULL,
+          'safe_value' => '041',
+        ),
+      ),
+    ),
+  );
+  $terms[] = array(
+    'name' => '032',
+    'description' => 'Magoanine C - Mercado',
+    'format' => 'html_email',
+    'weight' => 0,
+    'uuid' => '6119-101',
+    'language' => 'und',
+    'i18n_tsid' => 0,
+    'vocabulary_machine_name' => 'points',
+    'field_lat' => array(
+      'und' => array(
+        0 => array(
+          'value' => -25.84651667,
+          'format' => NULL,
+          'safe_value' => -25.84651667,
+        ),
+      ),
+    ),
+    'field_long' => array(
+      'und' => array(
+        0 => array(
+          'value' => 32.59408333,
+          'format' => NULL,
+          'safe_value' => 32.59408333,
+        ),
+      ),
+    ),
+    'field_address_string' => array(
+      'und' => array(
+        0 => array(
+          'value' => 'Magoanine C - Mercado',
+          'format' => NULL,
+          'safe_value' => 'Magoanine C - Mercado',
+        ),
+      ),
+    ),
+    'field_geo' => array(
+      'und' => array(
+        0 => array(
+          'lat' => -25.84651667,
+          'lng' => 32.59408333,
+          'lat_sin' => -0.43596189679915,
+          'lat_cos' => 0.89996512406831,
+          'lng_rad' => 0.5688740707779,
+        ),
+      ),
+    ),
+    'field_points_icon' => array(
+      'und' => array(
+        0 => array(
+          'value' => 'remove',
+          'format' => NULL,
+          'safe_value' => 'remove',
+        ),
+      ),
+    ),
+    'field_points_id' => array(
+      'und' => array(
+        0 => array(
+          'value' => '032',
+          'format' => NULL,
+          'safe_value' => '032',
+        ),
+      ),
+    ),
+  );
+  $terms[] = array(
+    'name' => '014',
+    'description' => 'Maxaquene - MICOA',
+    'format' => 'html_email',
+    'weight' => 0,
+    'uuid' => '66ff-101',
+    'language' => 'und',
+    'i18n_tsid' => 0,
+    'vocabulary_machine_name' => 'points',
+    'field_lat' => array(
+      'und' => array(
+        0 => array(
+          'value' => -25.93733333,
+          'format' => NULL,
+          'safe_value' => -25.93733333,
+        ),
+      ),
+    ),
+    'field_long' => array(
+      'und' => array(
+        0 => array(
+          'value' => 32.57791667,
+          'format' => NULL,
+          'safe_value' => 32.57791667,
+        ),
+      ),
+    ),
+    'field_address_string' => array(
+      'und' => array(
+        0 => array(
+          'value' => 'Maxaquene - MICOA',
+          'format' => NULL,
+          'safe_value' => 'Maxaquene - MICOA',
+        ),
+      ),
+    ),
+    'field_geo' => array(
+      'und' => array(
+        0 => array(
+          'lat' => -25.93733333,
+          'lng' => 32.57791667,
+          'lat_sin' => -0.43738783802971,
+          'lat_cos' => 0.89927297254154,
+          'lng_rad' => 0.56859190933185,
+        ),
+      ),
+    ),
+    'field_points_icon' => array(
+      'und' => array(
+        0 => array(
+          'value' => 'remove',
+          'format' => NULL,
+          'safe_value' => 'remove',
+        ),
+      ),
+    ),
+    'field_points_id' => array(
+      'und' => array(
+        0 => array(
+          'value' => '014',
+          'format' => NULL,
+          'safe_value' => '014',
+        ),
+      ),
+    ),
+  );
+  $terms[] = array(
+    'name' => '011',
+    'description' => 'Maxaquene - Baltazar',
+    'format' => 'html_email',
+    'weight' => 0,
+    'uuid' => '86bc-101',
+    'language' => 'und',
+    'i18n_tsid' => 0,
+    'vocabulary_machine_name' => 'points',
+    'field_lat' => array(
+      'und' => array(
+        0 => array(
+          'value' => -25.94473333,
+          'format' => NULL,
+          'safe_value' => -25.94473333,
+        ),
+      ),
+    ),
+    'field_long' => array(
+      'und' => array(
+        0 => array(
+          'value' => 32.57893333,
+          'format' => NULL,
+          'safe_value' => 32.57893333,
+        ),
+      ),
+    ),
+    'field_address_string' => array(
+      'und' => array(
+        0 => array(
+          'value' => 'Maxaquene - Baltazar',
+          'format' => NULL,
+          'safe_value' => 'Maxaquene - Baltazar',
+        ),
+      ),
+    ),
+    'field_geo' => array(
+      'und' => array(
+        0 => array(
+          'lat' => -25.94473333,
+          'lng' => 32.57893333,
+          'lat_sin' => -0.4375039794108,
+          'lat_cos' => 0.89921647449305,
+          'lng_rad' => 0.56860965339622,
+        ),
+      ),
+    ),
+    'field_points_icon' => array(
+      'und' => array(
+        0 => array(
+          'value' => 'remove',
+          'format' => NULL,
+          'safe_value' => 'remove',
+        ),
+      ),
+    ),
+    'field_points_id' => array(
+      'und' => array(
+        0 => array(
+          'value' => '011',
+          'format' => NULL,
+          'safe_value' => '011',
+        ),
+      ),
+    ),
+  );
+  $terms[] = array(
+    'name' => '031',
+    'description' => 'Magoanine C - Grande Maputo',
+    'format' => 'html_email',
+    'weight' => 0,
+    'uuid' => '8845-101',
+    'language' => 'und',
+    'i18n_tsid' => 0,
+    'vocabulary_machine_name' => 'points',
+    'field_lat' => array(
+      'und' => array(
+        0 => array(
+          'value' => -25.8283,
+          'format' => NULL,
+          'safe_value' => -25.8283,
+        ),
+      ),
+    ),
+    'field_long' => array(
+      'und' => array(
+        0 => array(
+          'value' => 32.6008,
+          'format' => NULL,
+          'safe_value' => 32.6008,
+        ),
+      ),
+    ),
+    'field_address_string' => array(
+      'und' => array(
+        0 => array(
+          'value' => 'Magoanine C - Grande Maputo',
+          'format' => NULL,
+          'safe_value' => 'Magoanine C - Grande Maputo',
+        ),
+      ),
+    ),
+    'field_geo' => array(
+      'und' => array(
+        0 => array(
+          'lat' => -25.8283,
+          'lng' => 32.6008,
+          'lat_sin' => -0.43567573907432,
+          'lat_cos' => 0.90010368868372,
+          'lng_rad' => 0.56899129878417,
+        ),
+      ),
+    ),
+    'field_points_icon' => array(
+      'und' => array(
+        0 => array(
+          'value' => 'remove',
+          'format' => NULL,
+          'safe_value' => 'remove',
+        ),
+      ),
+    ),
+    'field_points_id' => array(
+      'und' => array(
+        0 => array(
+          'value' => '031',
+          'format' => NULL,
+          'safe_value' => '031',
+        ),
+      ),
+    ),
+  );
+  $terms[] = array(
+    'name' => '013',
+    'description' => 'Maxaquene - Etrago',
+    'format' => 'html_email',
+    'weight' => 0,
+    'uuid' => '8d8b-101',
+    'language' => 'und',
+    'i18n_tsid' => 0,
+    'vocabulary_machine_name' => 'points',
+    'field_lat' => array(
+      'und' => array(
+        0 => array(
+          'value' => -25.94076667,
+          'format' => NULL,
+          'safe_value' => -25.94076667,
+        ),
+      ),
+    ),
+    'field_long' => array(
+      'und' => array(
+        0 => array(
+          'value' => 32.57918333,
+          'format' => NULL,
+          'safe_value' => 32.57918333,
+        ),
+      ),
+    ),
+    'field_address_string' => array(
+      'und' => array(
+        0 => array(
+          'value' => 'Maxaquene - Etrago',
+          'format' => NULL,
+          'safe_value' => 'Maxaquene - Etrago',
+        ),
+      ),
+    ),
+    'field_geo' => array(
+      'und' => array(
+        0 => array(
+          'lat' => -25.94076667,
+          'lng' => 32.57918333,
+          'lat_sin' => -0.43744172445727,
+          'lat_cos' => 0.89924676129739,
+          'lng_rad' => 0.56861401671935,
+        ),
+      ),
+    ),
+    'field_points_icon' => array(
+      'und' => array(
+        0 => array(
+          'value' => 'remove',
+          'format' => NULL,
+          'safe_value' => 'remove',
+        ),
+      ),
+    ),
+    'field_points_id' => array(
+      'und' => array(
+        0 => array(
+          'value' => '013',
+          'format' => NULL,
+          'safe_value' => '013',
+        ),
+      ),
+    ),
+  );
+  $terms[] = array(
+    'name' => '012',
+    'description' => 'Maxaquene - Custódio',
+    'format' => 'html_email',
+    'weight' => 0,
+    'uuid' => '91b7-101',
+    'language' => 'und',
+    'i18n_tsid' => 0,
+    'vocabulary_machine_name' => 'points',
+    'field_lat' => array(
+      'und' => array(
+        0 => array(
+          'value' => -25.94306667,
+          'format' => NULL,
+          'safe_value' => -25.94306667,
+        ),
+      ),
+    ),
+    'field_long' => array(
+      'und' => array(
+        0 => array(
+          'value' => 32.57893333,
+          'format' => NULL,
+          'safe_value' => 32.57893333,
+        ),
+      ),
+    ),
+    'field_address_string' => array(
+      'und' => array(
+        0 => array(
+          'value' => 'Maxaquene - Custódio',
+          'format' => NULL,
+          'safe_value' => 'Maxaquene - Custódio',
+        ),
+      ),
+    ),
+    'field_geo' => array(
+      'und' => array(
+        0 => array(
+          'lat' => -25.94306667,
+          'lng' => 32.57893333,
+          'lat_sin' => -0.43747782218338,
+          'lat_cos' => 0.89922920053659,
+          'lng_rad' => 0.56860965339622,
+        ),
+      ),
+    ),
+    'field_points_icon' => array(
+      'und' => array(
+        0 => array(
+          'value' => 'remove',
+          'format' => NULL,
+          'safe_value' => 'remove',
+        ),
+      ),
+    ),
+    'field_points_id' => array(
+      'und' => array(
+        0 => array(
+          'value' => '012',
+          'format' => NULL,
+          'safe_value' => '012',
+        ),
+      ),
+    ),
+  );
+  $terms[] = array(
+    'name' => '023',
+    'description' => 'Polana Caniço B - Campo big Ben',
+    'format' => 'html_email',
+    'weight' => 0,
+    'uuid' => 'a114-101',
+    'language' => 'und',
+    'i18n_tsid' => 0,
+    'vocabulary_machine_name' => 'points',
+    'field_lat' => array(
+      'und' => array(
+        0 => array(
+          'value' => 0,
+          'format' => NULL,
+          'safe_value' => 0,
+        ),
+      ),
+    ),
+    'field_long' => array(
+      'und' => array(
+        0 => array(
+          'value' => 0,
+          'format' => NULL,
+          'safe_value' => 0,
+        ),
+      ),
+    ),
+    'field_address_string' => array(),
+    'field_geo' => array(),
+    'field_points_icon' => array(
+      'und' => array(
+        0 => array(
+          'value' => 'remove',
+          'format' => NULL,
+          'safe_value' => 'remove',
+        ),
+      ),
+    ),
+    'field_points_id' => array(
+      'und' => array(
+        0 => array(
+          'value' => '023',
+          'format' => NULL,
+          'safe_value' => '023',
+        ),
+      ),
+    ),
+  );
+  $terms[] = array(
+    'name' => '020',
+    'description' => 'Polana Caniço B - Carlos Cardoso  Com Costa do sol',
+    'format' => 'html_email',
+    'weight' => 0,
+    'uuid' => 'd10a-101',
+    'language' => 'und',
+    'i18n_tsid' => 0,
+    'vocabulary_machine_name' => 'points',
+    'field_lat' => array(
+      'und' => array(
+        0 => array(
+          'value' => -25.9338,
+          'format' => NULL,
+          'safe_value' => -25.9338,
+        ),
+      ),
+    ),
+    'field_long' => array(
+      'und' => array(
+        0 => array(
+          'value' => 32.60638333,
+          'format' => NULL,
+          'safe_value' => 32.60638333,
+        ),
+      ),
+    ),
+    'field_address_string' => array(
+      'und' => array(
+        0 => array(
+          'value' => 'Polana Caniço B - Carlos Cardoso  Com Costa do sol',
+          'format' => NULL,
+          'safe_value' => 'Polana Caniço B - Carlos Cardoso  Com Costa do sol',
+        ),
+      ),
+    ),
+    'field_geo' => array(
+      'und' => array(
+        0 => array(
+          'lat' => -25.9338,
+          'lng' => 32.60638333,
+          'lat_sin' => -0.43733238061471,
+          'lat_cos' => 0.89929994377064,
+          'lng_rad' => 0.56908874627589,
+        ),
+      ),
+    ),
+    'field_points_icon' => array(
+      'und' => array(
+        0 => array(
+          'value' => 'remove',
+          'format' => NULL,
+          'safe_value' => 'remove',
+        ),
+      ),
+    ),
+    'field_points_id' => array(
+      'und' => array(
+        0 => array(
+          'value' => '020',
+          'format' => NULL,
+          'safe_value' => '020',
+        ),
+      ),
+    ),
+  );
+  $terms[] = array(
+    'name' => '022',
+    'description' => 'Polana Caniço B - Maxiquexique',
+    'format' => 'html_email',
+    'weight' => 0,
+    'uuid' => 'e446-101',
+    'language' => 'und',
+    'i18n_tsid' => 0,
+    'vocabulary_machine_name' => 'points',
+    'field_lat' => array(
+      'und' => array(
+        0 => array(
+          'value' => 0,
+          'format' => NULL,
+          'safe_value' => 0,
+        ),
+      ),
+    ),
+    'field_long' => array(
+      'und' => array(
+        0 => array(
+          'value' => 0,
+          'format' => NULL,
+          'safe_value' => 0,
+        ),
+      ),
+    ),
+    'field_address_string' => array(),
+    'field_geo' => array(),
+    'field_points_icon' => array(
+      'und' => array(
+        0 => array(
+          'value' => 'remove',
+          'format' => NULL,
+          'safe_value' => 'remove',
+        ),
+      ),
+    ),
+    'field_points_id' => array(
+      'und' => array(
+        0 => array(
+          'value' => '022',
+          'format' => NULL,
+          'safe_value' => '022',
+        ),
+      ),
+    ),
+  );
+  return $terms;
+}
+
+function voipdrupal_ntxuva_garbage_spots_by_name($location) {
+  $garbage_spots = voipdrupal_ntxuva_garbage_spots();
+
+  foreach($garbage_spots as $spot) {
+    if($spot['name'] == $location) {
+      return $spot;
+    }
+  }
+  return NULL;
+}

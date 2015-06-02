@@ -1,0 +1,7 @@
+core = "7.x"
+description = "VoIP Drupal Ntxuva"
+name = "VoIP Drupal Ntxuva"
+dependencies[] = voip
+package = "Ntxuva"
+
+

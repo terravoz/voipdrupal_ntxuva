@@ -1,0 +1,160 @@
+<?php
+
+/**
+ * @file Provides various VoIP Drupal Scripts for the Callblast
+ */
+
+foreach (array('sms_actions.scripts.inc') as $file) {
+  require_once(dirname(__FILE__) . DIRECTORY_SEPARATOR . $file);
+}
+
+/**
+ * Implementation of hook_menu().
+ */
+function sms_actions_menu() {
+  $items['admin/voip/sms_actions'] = array(
+    'title' => 'SMS Actions',
+    'description' => 'SMS Actions config',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('sms_actions_admin_settings_form'),
+    'access arguments' => array('administer site configuration'),
+    'type' => MENU_NORMAL_ITEM,
+  );
+  return $items;
+}
+
+function sms_actions_admin_settings_form() {
+  $form['sms_actions_fieldset'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('SMS actions'),
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE,
+    '#description' =>'Case insensitive comma seperated list of keywords for SMS actions.<br/>
+    Please note that some providers like Twilio automatically handle some keywords like HELP, STOP, CANCEL, eg...<br/>
+    You can add new SMS action by implementing hook_sms_actions().'
+  );
+  $sms_actions = module_invoke_all('sms_actions');
+  foreach($sms_actions as $key => $sms_action) {
+    $form['sms_actions_fieldset']['sms_actions_action_'.$key] = array(
+      '#type' => 'textfield',
+      '#title' => t('Keywords for '.$sms_action['title']),
+      '#description' => $sms_action['description'],
+      '#default_value' => variable_get('sms_actions_action_'.$key, ''),
+    );
+  }
+
+  $form['sms_responses_fieldset'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Default text for SMS responses'),
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE,
+  );
+
+  $form['sms_responses_fieldset']['sms_actions_sms_help'] = array(
+    '#type' => 'textarea',
+    '#title' => t('SMS help'),
+    '#description' => t('Text for the SMS help message.'),
+    '#default_value' => variable_get('sms_actions_sms_help',
+      'Welcome to Callblast! To JOIN text any letter. To STOP receiving text messages, text "S". For HELP, text "H". Msg & data rates may apply.'),
+);
+
+  $form['sms_responses_fieldset']['sms_actions_sms_welcome'] = array(
+    '#type' => 'textarea',
+    '#title' => t('SMS Subscribe welcome'),
+    '#description' => t('Welcome message sent whenever a user subscribes to the service.'),
+    '#default_value' => variable_get('sms_actions_sms_welcome', 'Welcome to Callblast App.'),
+  );
+
+  $form['sms_responses_fieldset']['sms_actions_sms_unsubscribe'] = array(
+    '#type' => 'textarea',
+    '#title' => t('SMS Unsubscribe'),
+    '#description' => t('Goodbye text sent whenever a user unsubscribes from the service.'),
+    '#default_value' => variable_get('sms_actions_sms_unsubscribe', 'You\'ve unsubscribed from the Callblast App and should not receive further messages. Should you choose to subscribe again, text any letter to this number.'),
+  );
+
+  $form['sms_responses_fieldset']['sms_actions_sms_duplicate'] = array(
+    '#type' => 'textarea',
+    '#title' => t('SMS Duplicate number'),
+    '#description' => t('Text sent whenever an already-registered user tries to subscribe once again.'),
+    '#default_value' => variable_get('sms_actions_sms_duplicate', 'Number already registered.'),
+  );
+
+  $form['sms_responses_fieldset']['sms_actions_sms_not_in_list'] = array(
+    '#type' => 'textarea',
+    '#title' => t('SMS Not in list'),
+    '#description' => t('Text sent whenever an unregistered user tries to unsubscribe from the service.'),
+    '#default_value' => variable_get('sms_actions_sms_not_in_list', 'Number not in the list.'),
+  );
+
+  $form['sms_responses_fieldset']['sms_actions_sms_unknown'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Unknown command'),
+    '#description' => t('SMS for unknown command.'),
+    '#default_value' => variable_get('sms_actions_sms_unknown', 'Unknown command.'),
+  );
+
+  $form['sms_responses_fieldset']['sms_actions_opt_message'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Opt-in message'),
+    '#description' => t('Text sent for invitations to join the service.'),
+    '#default_value' => variable_get('sms_actions_opt_message',
+      'Callblast App would like to send you SMS reminders at this number. X/week. H for help. S to end. Msg&data rates may apply. Reply J to confirm today.')
+  );
+
+  $form['#submit'][] = 'sms_actions_admin_settings_form_submit';
+
+  return system_settings_form($form);
+}
+
+function sms_actions_admin_settings_form_validate($form, &$form_state){
+  $sms_actions = module_invoke_all('sms_actions');
+  $all_keywords = array();
+  foreach($sms_actions as $key => $sms_action) {
+    if($form_state['values']['sms_actions_action_'.$key]){
+      $keywords = explode(',',strtoupper($form_state['values']['sms_actions_action_'.$key]));
+      foreach($keywords as $keyword) {
+        $keyword = trim($keyword);
+        if(isset($all_keywords[$keyword])){
+          form_set_error('sms_actions_action_'.$key, 'Duplicated keyword '.$keyword);
+        }
+        $all_keywords[$keyword] = $sms_action['script'];
+      }
+    }
+  }
+  $form_state['data']['sms_actions_keywords'] = $all_keywords;
+}
+
+function sms_actions_admin_settings_form_submit($form, &$form_state) {
+  variable_set('sms_actions_keywords', $form_state['data']['sms_actions_keywords']);
+}
+
+/**
+ * Implementation of hook_sms_actions().
+ */
+function sms_actions_sms_actions() {
+  $sms_actions = array(
+    'subscribe' => array(
+      'script' => 'sms_actions_action_subscribe',
+      'title' => 'SMS subscription',
+      'description' => 'Keywords to add the sender\'s number to the contact list',
+    ),
+    'unsubscribe' => array(
+      'script' => 'sms_actions_action_unsubscribe',
+      'title' => 'SMS unsubscription',
+      'description' => 'Keywords to remove the sender\'s number from the contact list',
+    ),
+    'help' => array(
+      'script' => 'sms_actions_action_help',
+      'title' => 'SMS help',
+      'description' => 'Keywords for SMS help',
+    ),
+  );
+  return $sms_actions;
+}
+
+//@todo: add unknown command
+function sms_actions_get_action($cmd){
+  $sms_actions_keywords = variable_get('sms_actions_keywords', '');
+  $sms_action_script = isset($sms_actions_keywords[$cmd]) ? $sms_actions_keywords[$cmd] : '';
+  return $sms_action_script;
+}

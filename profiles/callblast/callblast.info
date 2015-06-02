@@ -1,0 +1,5 @@
+name = Callblast
+description = Install the modules required for the creation and management of bulk SMS and voice calls.
+version = 1.0
+core = 7.x
+dependencies[] = features

@@ -1,0 +1,60 @@
+<?php
+
+/**
+ * Implements hook_enable().
+ *
+ * Register default Voip Queue class.
+ * Other queues created it is the responsibility of the caller to make sure the
+ * correct class is used. Either by setting
+ * 'queue_default_class' variable, for the whole site, or 'queue_class_'
+ * . $name.
+ */
+function voipnumber_blast_enable() {
+  variable_set('queue_class_voipblast_voice', 'VoipQueue');
+  variable_set('queue_class_voipblast_texts', 'VoipQueue');
+}
+
+/**
+ * Implements hook_schema().
+ */
+/*
+function voipnumber_blast_schema() {
+
+  $schema['voipnumber_blast'] = array(
+    'fields' => array(
+      'nid' => array(
+        'description' => 'The Blast nid.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => FALSE,
+        'default' => NULL,
+      ),
+      'vnid' => array(
+        'description' => 'VoIP Number vnid related to Blast.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => FALSE,
+        'default' => NULL,
+      ),
+      'cid' => array(
+        'description' => 'VoIP Call cid related to Blast.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => FALSE,
+        'default' => NULL,
+      ),
+    ),
+    'primary key' => array('nid', 'vnid'),
+  );
+
+  return $schema;
+}
+*/
+/**
+ * Implements hook_update_N().
+ */
+function voipnumber_blast_update_7101() {
+  db_drop_table('voipnumber_blast');
+
+  return t('VoIP Number Blast Update 7101 ran successfully.') /* $ret */;
+}
