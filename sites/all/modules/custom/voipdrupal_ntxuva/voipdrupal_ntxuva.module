@@ -2,6 +2,8 @@
 // $Id$
 require_once(dirname(__FILE__) . DIRECTORY_SEPARATOR . 'voipdrupal_ntxuva.scripts.inc');
 
+//@todo: test with Tropo portugese, enable transaltion through voipvoice
+
 /**
  * Implements hook_menu().
  */

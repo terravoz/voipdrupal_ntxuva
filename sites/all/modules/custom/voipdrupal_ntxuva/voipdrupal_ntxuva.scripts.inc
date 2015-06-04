@@ -10,6 +10,8 @@
  */
 function voipdrupal_ntxuva_voipscript_get_script_names() {
   $script_names[] = 'voipdrupal_ntxuva_welcome_script';
+  $script_names[] = 'voipdrupal_ntxuva_sms_callmeback_script';
+
   return $script_names;
 }
 
@@ -21,6 +23,12 @@ function voipdrupal_ntxuva_voipscript_load_script($script_name, $options = NULL)
   switch ($script_name) {
     default:
       break;
+    case 'voipdrupal_ntxuva_sms_callmeback_script':
+      $script = new VoipScript('voipdrupal_ntxuva_sms_callmeback_script');
+      $script->addDial();
+      $script->addHangup();
+      break;
+
     case 'voipdrupal_ntxuva_welcome_script':
       $script = new VoipScript('voipdrupal_ntxuva_welcome_script');
       $script->addSetVoice('woman');
