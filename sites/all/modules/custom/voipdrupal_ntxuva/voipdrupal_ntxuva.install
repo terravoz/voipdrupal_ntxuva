@@ -26,7 +26,7 @@ function voipdrupal_ntxuva_install() {
     'name' => 'ntxuva-portuguese',
     'gender' => 'woman',
     'description' => 'This is woman Portuguese Ntxuva voice.',
-    'language' => 'en',
+    'language' => 'pt',
     'lexicon' => 'ntxuva_lexicon',
   );
   voipvoice_create_voice($voice2);
@@ -35,7 +35,7 @@ function voipdrupal_ntxuva_install() {
     'name' => 'ntxuva-changana',
     'gender' => 'woman',
     'description' => 'This is woman Changana Ntxuva voice.',
-    'language' => 'en',
+    'language' => 'ts',
     'lexicon' => 'ntxuva_lexicon',
   );
   voipvoice_create_voice($voice3);
