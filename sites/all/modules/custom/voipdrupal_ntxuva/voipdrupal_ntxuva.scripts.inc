@@ -83,8 +83,9 @@ function voipdrupal_ntxuva_voipscript_load_script($script_name, $options = NULL)
     case 'voipdrupal_ntxuva_main_menu_script':
       $script = new VoipScript('voipdrupal_ntxuva_main_menu_script');
       $voice = $options['voice'];
-      voipvoice_set_current_voice($voice);
       $script->setVoice('eusebio');
+      voipvoice_set_current_voice($voice);
+
 
       $script->addLabel('main_menu');
       $p_main_menu[] = v("Main menu. To submit a report, press 1.
@@ -203,9 +204,9 @@ function voipdrupal_ntxuva_voipscript_load_script($script_name, $options = NULL)
 
       $beep_url = url('voip/sound/beep', array('absolute' => TRUE));
       $args = array('@beep' => $beep_url);
-      $prompt = v('Now type in the number of your quarter after the beep. When done, press the pound key. @beep', $args);
+      $prompt = v('Now type in the number of your quarter after the beep. When done, press the star key. @beep', $args);
       $timeout = 10;
-      $end_key = '#';
+      $end_key = '*';
       $num_digits = 99;
       $script->addGetInput($prompt, $num_digits, $end_key, $timeout);
 
@@ -295,9 +296,9 @@ function voipdrupal_ntxuva_voipscript_load_script($script_name, $options = NULL)
       $script->addLabel('insert_request_number');
       $beep_url = url('voip/sound/beep', array('absolute' => TRUE));
       $args = array('@beep' => $beep_url);
-      $prompt = v("Please type the report number after the beep. Once you are done, type the pound key. @beep", $args);
+      $prompt = v("Please type the report number after the beep. Once you are done, type the star key. @beep", $args);
       $timeout = 5;
-      $end_key = '#';
+      $end_key = '*';
       $num_digits = 7;
       $script->addGetInput($prompt, $num_digits, $end_key, $timeout);
 
