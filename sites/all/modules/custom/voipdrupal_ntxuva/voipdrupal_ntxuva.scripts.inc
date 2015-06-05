@@ -314,6 +314,7 @@ To go back to the main menu, dial the star key.', $args);
     );
       $p_invalid_msg = v('Invalid input. Please try again.'); // Invalid option, please try again
       $script->addRunIvrMenu($p_options_menu, $input_options, $p_invalid_msg);
+      $script->addGoto('%ivr_option_selected');
 
       $script->addLabel('request_not_found');
       $p_options_menu = v('The requested report has not been found. To try again, dial 1. To go back to the main menu, dial the star key.');      $input_options = array(
