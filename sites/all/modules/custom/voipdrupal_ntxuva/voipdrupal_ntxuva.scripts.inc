@@ -84,6 +84,7 @@ function voipdrupal_ntxuva_voipscript_load_script($script_name, $options = NULL)
       $script = new VoipScript('voipdrupal_ntxuva_main_menu_script');
       $voice = $options['voice'];
       voipvoice_set_current_voice($voice);
+      $script->setVoice('eusebio');
 
       $script->addLabel('main_menu');
       $p_main_menu[] = v("Main menu. To submit a report, press 1.
