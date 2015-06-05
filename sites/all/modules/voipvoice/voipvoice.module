@@ -942,7 +942,7 @@ function voipvoice_manage_recordings_form($form, &$form_state, $voice_code) {
       $lid = db_query("SELECT lid FROM {locales_source} WHERE source=:source", array(':source' => $phrase['phrase']))->fetchField();
       $form[$id]['translated_phrase'] = array('#value' =>  $translated_string);
       //Display translate link only of voice language is different than default Drupal language
-      $form[$id]['translate'] = array('#value' =>  l('translate','admin/config/regional/translate/translate/edit/'.$lid, array('query' => array('destination' => 'admin/config/voipvoice/voices/recordings/'.$voice_code))));
+      $form[$id]['translate'] = array('#value' =>  l('translate','admin/config/regional/translate/edit/'.$lid, array('query' => array('destination' => 'admin/config/voipvoice/voices/recordings/'.$voice_code))));
     }
     else {
       $form[$id]['translated_phrase'] = array('#value' =>  t('n/a'));
