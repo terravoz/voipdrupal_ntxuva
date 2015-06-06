@@ -53,8 +53,8 @@ function voipdrupal_ntxuva_voipscript_load_script($script_name, $options = NULL)
         '1' => 'portuguese_version',
         '2' => 'changana_version',
         '3' => 'english_version',
-        'i' => 'invalid_option',
-        't' => 'invalid_option'
+        'i' => 'hang_up',
+        't' => 'hang_up'
       );
       $p_invalid_msg = v('Invalid option selected. Please try again. ');
       $script->addRunIvrMenu($p_main_menu, $input_options, $p_invalid_msg);
