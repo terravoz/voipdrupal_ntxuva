@@ -62,7 +62,8 @@ function voipdrupal_ntxuva_voipscript_load_script($script_name, $options = NULL)
 
       /*Language selection*/
       $script->addLabel('portuguese_version');
-      $options['voice'] = 'ntxuva-portuguese';
+      //$options['voice'] = 'ntxuva-portuguese';
+      $options['voice'] = 'fernanda';
       $script->addGosub('voipdrupal_ntxuva_main_menu_script', $options);
       $script->addGoto('hang_up');
 
@@ -83,9 +84,7 @@ function voipdrupal_ntxuva_voipscript_load_script($script_name, $options = NULL)
     case 'voipdrupal_ntxuva_main_menu_script':
       $script = new VoipScript('voipdrupal_ntxuva_main_menu_script');
       $voice = $options['voice'];
-      $script->setVoice('eusebio');
       voipvoice_set_current_voice($voice);
-
 
       $script->addLabel('main_menu');
       $p_main_menu[] = v("Main menu. To submit a report, press 1.

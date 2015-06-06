@@ -208,7 +208,6 @@ function v($text, $args = array(), $as = NULL,  $voice_id=NULL) {
  else {
    //Use voice set in voipvoice_set_current_voice()
    global $voipvoice_current_voice;
-   var_dump($voipvoice_current_voice);
    if(!$voipvoice_current_voice) {
     //initialize with default
     $server = VoipServer::getDefaultServer();
