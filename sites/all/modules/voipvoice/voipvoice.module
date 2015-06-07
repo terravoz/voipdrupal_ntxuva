@@ -15,16 +15,16 @@ function voipvoice_menu() {
     'file' => 'system.admin.inc',
     'file path' => drupal_get_path('module', 'system'),
     'access arguments' => array('manage voip voices'),
-   );
+  );
 
-   $items['admin/config/voipvoice/voices'] = array(
+  $items['admin/config/voipvoice/voices'] = array(
     'title' => 'Manage VoIP voices',
     'description' => 'Manage VoIP voices',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('voipvoice_manage_voices'),
     'access arguments' => array('manage voip voices'),
     'type' => MENU_NORMAL_ITEM,
-   );
+  );
 
   $items['admin/config/voipvoice/voices/%'] = array(
     'title' => 'Edit VoIP voice',
@@ -127,7 +127,7 @@ function voipvoice_menu() {
     'page callback' => 'voipvoice_manage_lexicons',
     'access arguments' => array('manage voip voices'),
     'type' => MENU_NORMAL_ITEM,
-   );
+  );
 
   $items['admin/config/voipvoice/lexicons/add-phrase/%'] = array(
     'title' => 'Add new phrase',
@@ -247,7 +247,7 @@ function voipvoice_get_prompt($prompt_string, $args = array(), $voice_code=NULL)
     $token = '_vio_' . mt_rand();
     $tokenized_keys = array();
     foreach(array_keys($args) as $key) {
-          $tokenized_keys[$key] = "$token$key$token";
+      $tokenized_keys[$key] = "$token$key$token";
     }
     $tokenized_string = strtr($translated_string, $tokenized_keys);
     // then split the string into an array of text chunks and arguments
@@ -287,7 +287,7 @@ function _voipvoice_add_phrase($lexicon, $original_phrase, $args = array(), $has
 
   //$exists = db_result(db_query("SELECT pid FROM {voipvoice_phrases} WHERE lexicon='%s' AND phrase_hash='%s'", $lexicon, $hash));
   $exists = db_query("SELECT pid FROM {voipvoice_phrases} WHERE lexicon=:lexicon AND phrase_hash=:phrase_hash",
-  array(':lexicon' => $lexicon, ':phrase_hash' => $hash))->fetchField();
+    array(':lexicon' => $lexicon, ':phrase_hash' => $hash))->fetchField();
   if (!$exists) {
     // add the new string
     $serialized_args = serialize($args);
@@ -367,15 +367,15 @@ function voipvoice_create_voice($voice) {
   $res = FALSE;
   $voice_dir = file_default_scheme() . '://' . variable_get('voipvoice_directory', 'voipvoice') . '/'.$voice['name'];
   $voice_dir_created = file_prepare_directory($voice_dir, FILE_CREATE_DIRECTORY | FILE_MODIFY_PERMISSIONS);
-watchdog('debug', "voice dir $voice_dir  created: $voice_dir_created");
-   if(!$voice_dir_created) {
-     drupal_set_message('The directory '.$voice_dir.' couldn\'t be created. Check file permissions.');
-   }
-   else {
-     $res = @drupal_write_record('voipvoice_voices', $voice);
-   }
+  watchdog('debug', "voice dir $voice_dir  created: $voice_dir_created");
+  if(!$voice_dir_created) {
+    drupal_set_message('The directory '.$voice_dir.' couldn\'t be created. Check file permissions.');
+  }
+  else {
+    $res = @drupal_write_record('voipvoice_voices', $voice);
+  }
 
-   return $res;
+  return $res;
 }
 
 /**
@@ -475,8 +475,8 @@ function voipvoice_get_lexicon($lexicon_name) {
  *    Boolean indicating success or failure to add new lexicon
  */
 function voipvoice_create_lexicon($lexicon) {
-   $res = @drupal_write_record('voipvoice_lexicons', $lexicon);
-   return $res;
+  $res = @drupal_write_record('voipvoice_lexicons', $lexicon);
+  return $res;
 }
 
 /**
@@ -552,7 +552,7 @@ function voipvoice_recording_exists($voice_code, $phrase_hash) {
   foreach($extensions as $extension) {
     $phrase_file_name = $new_voice_dir . $phrase_hash . '.' . $extension;
     if (file_exists("$phrase_file_name")) {
-       return $phrase_file_name;
+      return $phrase_file_name;
     }
   }
 
@@ -741,8 +741,8 @@ function voipvoice_add_voice_submit(&$form, &$form_state) {
   $voice_dir = file_default_scheme() . '://' . variable_get('voipvoice_directory', 'voipvoice').'/'.$name;
   $voice_path = file_prepare_directory($voice_dir, FILE_CREATE_DIRECTORY | FILE_MODIFY_PERMISSIONS);
   if(!$voice_path) {
-     drupal_set_message('The directory '.$voice_dir.' couldn\'t be created. Check file permissions.');
-     return;
+    drupal_set_message('The directory '.$voice_dir.' couldn\'t be created. Check file permissions.');
+    return;
   }
 
   //@todo: check that db_merge returns false
@@ -762,18 +762,18 @@ function voipvoice_add_voice_submit(&$form, &$form_state) {
       $message = t('Voice sucessfully updated.');
     }
     else {
-     $message = t("Voice couldn't be updated. Please try again later.");
+      $message = t("Voice couldn't be updated. Please try again later.");
       $status = 'error';
     }
   }
   else {
     if($res) {
-    $message = t('New voice added.');
-  }
-  else {
-    $message = t("New voice couldn't be added. Please try again later.");
-    $status = 'error';
-  }
+      $message = t('New voice added.');
+    }
+    else {
+      $message = t("New voice couldn't be added. Please try again later.");
+      $status = 'error';
+    }
   }
 
   drupal_set_message($message, $status);
@@ -798,12 +798,12 @@ function voipvoice_manage_recordings_form($form, &$form_state, $voice_code) {
       'data' => t('Original Phrase'),
       'field' => 'phrase',
       'sort'  => 'asc',
-      ),
-     array(
+    ),
+    array(
       'data' => t('PID'),
       'field' => 'pid',
-      ),
-     );
+    ),
+  );
 
   $query = db_select('voipvoice_phrases', 'vp')
     ->extend('PagerDefault')
@@ -820,6 +820,18 @@ function voipvoice_manage_recordings_form($form, &$form_state, $voice_code) {
     $options[$id] = '';
     $form[$id]['id'] = array('#value' => $phrase['pid']);
     $translated_string = t($phrase['phrase'], array(), array('langcode' => $langcode));
+
+    if (language_default('language') != $langcode) {
+      $lid = db_query("SELECT lid FROM {locales_source} WHERE source=:source", array(':source' => $phrase['phrase']))->fetchField();
+
+      $form[$id]['translated_phrase']['#value'] = ($translated_string == $phrase['phrase']) ? '' : $translated_string;
+      //Display translate link only of voice language is different than default Drupal language
+      $form[$id]['translate'] = array('#value' =>  l('translate','admin/config/regional/translate/edit/'.$lid, array('query' => array('destination' => 'admin/config/voipvoice/voices/recordings/'.$voice_code))));
+    }
+    else {
+      $form[$id]['translated_phrase'] = array('#value' =>  t('n/a'));
+      $form[$id]['translate'] = array('#value' =>  t('n/a'));
+    }
     //Check for arguments
     $args = unserialize($phrase['args']);
     if (is_array($args) && !empty($args)) {
@@ -828,10 +840,9 @@ function voipvoice_manage_recordings_form($form, &$form_state, $voice_code) {
       $token = '_vio_' . mt_rand();
       $tokenized_keys = array();
       foreach(array_keys($args) as $key) {
-          $tokenized_keys[$key] = "$token$key$token";
+        $tokenized_keys[$key] = "$token$key$token";
       }
       $tokenized_string = strtr($translated_string, $tokenized_keys);
-      $translated_string='<div>'.$translated_string.'</div><ul>';
       // then split the string into an array of text chunks and arguments
       $speech_array = explode($token, $tokenized_string);
 
@@ -843,7 +854,6 @@ function voipvoice_manage_recordings_form($form, &$form_state, $voice_code) {
       foreach ($speech_array as $index => $speech_phrase) {
 
         if($speech_phrase && !(in_array($speech_phrase{0}, array('%', '@')) && (array_key_exists($speech_phrase, $args)))) {
-          $translated_string.="<li>".$speech_phrase."</li>";
           $speech_phrase = trim($speech_phrase);
           $phrase_hash = _voipvoice_create_hash($speech_phrase);
           //Fake the element:
@@ -881,21 +891,11 @@ function voipvoice_manage_recordings_form($form, &$form_state, $voice_code) {
             '#value' => $phrase_hash,
           );
 
+          $phrase['phrase'].="<li>".$speech_phrase."</li>";
           $i++;
         }
       }
-      $translated_string .= '</ul>';
-
-      $tokenized_string = strtr($phrase['phrase'], $tokenized_keys);
       $phrase['phrase']='<div>'.$phrase['phrase'].'</div><ul>';
-      // then split the string into an array of text chunks and arguments
-      $speech_array = explode($token, $tokenized_string);
-
-      foreach ($speech_array as $index => $speech_phrase) {
-        if($speech_phrase && !(($speech_phrase{0} == '%') && (array_key_exists($speech_phrase, $args)))) {
-          $phrase['phrase'].="<li>".$speech_phrase."</li>";
-        }
-      }
     }
     else {
       /*String without arguments*/
@@ -923,31 +923,23 @@ function voipvoice_manage_recordings_form($form, &$form_state, $voice_code) {
         '#attributes' => array('id' => 'field-voipvoice-'.$id),
       );
 
-       $form[$id]['upload']['upload-'.$id] = array(
-         '#type' => 'file',
-         '#title' => t('Click to Upload a recording'),
-         '#size' => 15,
-         '#description' => t('Maximum Filesize: %size', array('%size' => format_size(parse_size($max_filesize)))),
-       );
+      $form[$id]['upload']['upload-'.$id] = array(
+        '#type' => 'file',
+        '#title' => t('Click to Upload a recording'),
+        '#size' => 15,
+        '#description' => t('Maximum Filesize: %size', array('%size' => format_size(parse_size($max_filesize)))),
+      );
 
       //Store hash
       $form_state['data']['hash-'.$id] = array(
-       '#type' => 'hidden',
-       '#value' => $phrase_hash,
+        '#type' => 'hidden',
+        '#value' => $phrase_hash,
       );
+
+
     }
 
     $form[$id]['original_phrase'] = array('#value' =>  $phrase['phrase']);
-    if (language_default('language') != $langcode) {
-      $lid = db_query("SELECT lid FROM {locales_source} WHERE source=:source", array(':source' => $phrase['phrase']))->fetchField();
-      $form[$id]['translated_phrase'] = array('#value' =>  $translated_string);
-      //Display translate link only of voice language is different than default Drupal language
-      $form[$id]['translate'] = array('#value' =>  l('translate','admin/config/regional/translate/edit/'.$lid, array('query' => array('destination' => 'admin/config/voipvoice/voices/recordings/'.$voice_code))));
-    }
-    else {
-      $form[$id]['translated_phrase'] = array('#value' =>  t('n/a'));
-      $form[$id]['translate'] = array('#value' =>  t('n/a'));
-    }
 
     $form[$id]['advanced'] = array('#value' =>  l('advanced','admin/config/voipvoice/voice-advanced/'.$voice_code.'/'.$phrase['pid']));
     $form[$id]['applet'] = array(
@@ -1077,18 +1069,18 @@ function theme_voipvoice_manage_recordings_form($variables) {
       if (empty($args)) {
         //String with no arguments
         if(strlen($element['original_phrase']['#value'])>150) {
-        $original_phrase = substr($element['original_phrase']['#value'], 0, 150).'... '.l(t('Read more'), 'admin/config/voipvoice/voice-phrase/'.$id, array('attributes' => array('target'=>'_blank')));
-      }
-      else {
-        $original_phrase =$element['original_phrase']['#value'];
-      }
+          $original_phrase = substr($element['original_phrase']['#value'], 0, 150).'... '.l(t('Read more'), 'admin/config/voipvoice/voice-phrase/'.$id, array('attributes' => array('target'=>'_blank')));
+        }
+        else {
+          $original_phrase =$element['original_phrase']['#value'];
+        }
 
-      if(strlen($element['translated_phrase']['#value'])>150) {
-        $translated_phrase = substr($element['translated_phrase']['#value'], 0, 150).'... '.l(t('Read more'), 'admin/config/voipvoice/voice-phrase-translated/'.$form['voice_code']['#value'].'/'.$id, array('attributes' => array('target'=>'_blank')));
-      }
-      else {
-        $translated_phrase =$element['translated_phrase']['#value'];
-      }
+        if(strlen($element['translated_phrase']['#value'])>150) {
+          $translated_phrase = substr($element['translated_phrase']['#value'], 0, 150).'... '.l(t('Read more'), 'admin/config/voipvoice/voice-phrase-translated/'.$form['voice_code']['#value'].'/'.$id, array('attributes' => array('target'=>'_blank')));
+        }
+        else {
+          $translated_phrase =$element['translated_phrase']['#value'];
+        }
       }
       else {
         $original_phrase =$element['original_phrase']['#value'];
@@ -1108,18 +1100,18 @@ function theme_voipvoice_manage_recordings_form($variables) {
 
   }
   $header = array(
-      array(
-        'data' => t('PID'),
-        'field' => 'pid',
-        'sort'  => 'asc',
-      ),
-      //t('PID'),
-      array(
-        'data' => t('Original Phrase'),
-        'field' => 'phrase',
-        'sort'  => 'asc',
-      ),
-      t('Translated Phrase'), t('Recordings'), t('Translate'), t('Advanced'));
+    array(
+      'data' => t('PID'),
+      'field' => 'pid',
+      'sort'  => 'asc',
+    ),
+    //t('PID'),
+    array(
+      'data' => t('Original Phrase'),
+      'field' => 'phrase',
+      'sort'  => 'asc',
+    ),
+    t('Translated Phrase'), t('Recordings'), t('Translate'), t('Advanced'));
   $output = theme('table',array('header' => $header, 'rows'=> $rows));
   $output .=  theme('pager', array('tags' => NULL, 'element' => 0));
 
@@ -1135,7 +1127,7 @@ function _voipvoice_get_voice_dir($voice_code) {
 }
 
 function voipvoice_import_voice() {
-   $form['import'] = array(
+  $form['import'] = array(
     '#prefix' => t('This form will import VoIP Voice definitions exported from another site. Note that VoIP Voices cannot be duplicated, so imported VoIP Voices will be added only if they do not already exist.'),
     '#type' => 'textarea',
     '#title' => t('Import data'),
@@ -1196,10 +1188,10 @@ function voipvoice_import_voice_submit($form, &$form_state) {
   voipvoice_import_phrases($phrases);
 
   //Unzip voices
-   if (!empty($_FILES['files']['tmp_name']['import_voices_zip'])) {
-     voipvoice_import_voices($_FILES['files']['tmp_name']['import_voices_zip'], $voice['name']);
-   }
-   drupal_set_message(t('You can view your imported voice ').l('here','admin/config/voipvoice/voices/recordings/'.$voice['name']));
+  if (!empty($_FILES['files']['tmp_name']['import_voices_zip'])) {
+    voipvoice_import_voices($_FILES['files']['tmp_name']['import_voices_zip'], $voice['name']);
+  }
+  drupal_set_message(t('You can view your imported voice ').l('here','admin/config/voipvoice/voices/recordings/'.$voice['name']));
 }
 
 function voipvoice_export_voice($form, &$form_state, $voice_code) {
@@ -1229,45 +1221,45 @@ function voipvoice_voice_advance($voice_code, $pid) {
   $args = unserialize($phrase['args']);
   $translated_string = t($phrase['phrase'], array(), array('langcode' => $langcode));
 
-   $output = "<div><b>pid:</b> ".$phrase['pid']."</div>";
-   $output .= "<div><b>voice:</b> ".$voice_code."</div>";
-   $output .= "<div><b>Original phrase:</b> ".$phrase['phrase']."</div>";
-   $output .= "<div><b>Translated phrase:</b> ".$translated_string."</div>";
+  $output = "<div><b>pid:</b> ".$phrase['pid']."</div>";
+  $output .= "<div><b>voice:</b> ".$voice_code."</div>";
+  $output .= "<div><b>Original phrase:</b> ".$phrase['phrase']."</div>";
+  $output .= "<div><b>Translated phrase:</b> ".$translated_string."</div>";
 
   if (is_array($args) && !empty($args)) {
-      //String with arguments
-      $token = '_vio_' . mt_rand();
-      $tokenized_keys = array();
-      foreach(array_keys($args) as $key) {
-          $tokenized_keys[$key] = "$token$key$token";
-      }
-      $tokenized_string = strtr($translated_string, $tokenized_keys);
-      // then split the string into an array of text chunks and arguments
-      $speech_array = explode($token, $tokenized_string);
-      $i=1;
-      foreach ($speech_array as $index => $speech_phrase) {
-        if($speech_phrase && !(($speech_phrase{0} == '%') && (array_key_exists($speech_phrase, $args)))) {
-          $speech_phrase = trim($speech_phrase);
-          $phrase_hash = _voipvoice_create_hash($speech_phrase);
-          $output .= "<div><b>Phrase hash for string $i:</b> ".$phrase_hash."</div>";
-          $phrase_file_name = voipvoice_recording_exists($voice_code, $phrase_hash);
-          //check if there is a voice
-          if ($phrase_file_name) {
-             $temp_output .= "<div><b>Audio $i available:</b> Yes</div>";
-             $temp_output .= "<div><b>Audio $i created:</b> ".date("F d Y H:i:s.", filemtime($phrase_file_name))."</div>";
-             $temp_output .= "<div><b>Audio $i last accessed:</b> ".date("F d Y H:i:s.", fileatime($phrase_file_name))."</div>";
-          }
-          $i++;
+    //String with arguments
+    $token = '_vio_' . mt_rand();
+    $tokenized_keys = array();
+    foreach(array_keys($args) as $key) {
+      $tokenized_keys[$key] = "$token$key$token";
+    }
+    $tokenized_string = strtr($translated_string, $tokenized_keys);
+    // then split the string into an array of text chunks and arguments
+    $speech_array = explode($token, $tokenized_string);
+    $i=1;
+    foreach ($speech_array as $index => $speech_phrase) {
+      if($speech_phrase && !(($speech_phrase{0} == '%') && (array_key_exists($speech_phrase, $args)))) {
+        $speech_phrase = trim($speech_phrase);
+        $phrase_hash = _voipvoice_create_hash($speech_phrase);
+        $output .= "<div><b>Phrase hash for string $i:</b> ".$phrase_hash."</div>";
+        $phrase_file_name = voipvoice_recording_exists($voice_code, $phrase_hash);
+        //check if there is a voice
+        if ($phrase_file_name) {
+          $temp_output .= "<div><b>Audio $i available:</b> Yes</div>";
+          $temp_output .= "<div><b>Audio $i created:</b> ".date("F d Y H:i:s.", filemtime($phrase_file_name))."</div>";
+          $temp_output .= "<div><b>Audio $i last accessed:</b> ".date("F d Y H:i:s.", fileatime($phrase_file_name))."</div>";
         }
-
+        $i++;
       }
 
-      if ($temp_output) {
-        $output .= $temp_output;
-      }
-      else {
-        $output .= "<div><b>Audio available:</b> No</div>";
-      }
+    }
+
+    if ($temp_output) {
+      $output .= $temp_output;
+    }
+    else {
+      $output .= "<div><b>Audio available:</b> No</div>";
+    }
   }
   else {
     //no arguments
@@ -1286,8 +1278,8 @@ function voipvoice_voice_advance($voice_code, $pid) {
 
   }
 
-   $output.=l("Go back","admin/config/voipvoice/voices/recordings/".$voice_code);
-   return $output;
+  $output.=l("Go back","admin/config/voipvoice/voices/recordings/".$voice_code);
+  return $output;
 }
 
 function voipvoice_lexicons() {
@@ -1295,7 +1287,7 @@ function voipvoice_lexicons() {
   $res = db_query("SELECT lexicon FROM {voipvoice_lexicons}");
 
   foreach($res as $obj) {
-      $items[$obj->lexicon] = check_plain($obj->lexicon);
+    $items[$obj->lexicon] = check_plain($obj->lexicon);
   }
 
 
@@ -1405,11 +1397,11 @@ function voipvoice_add_lexicon_submit($form, &$form_state) {
         ->condition('lexicon', $old_lexicon)
         ->execute();
       db_update('voipvoice_phrases')
-          ->fields(array(
-            'lexicon' => $lexicon,
-          ))
-          ->condition('lexicon', $old_lexicon)
-          ->execute();
+        ->fields(array(
+          'lexicon' => $lexicon,
+        ))
+        ->condition('lexicon', $old_lexicon)
+        ->execute();
     }
     $message = t('Lexicon sucessfully updated.');
   }
@@ -1435,13 +1427,13 @@ function voipvoice_manage_lexicons() {
   $header = array(t('Name'), t('Settings'), t('View phrases'),t('Add phrase'),t('Delete lexicon'));
   $rows = array();
   while ($lexicon = $query->fetchAssoc()) {
-     $rows[] = array(
-        check_plain($lexicon['lexicon']),
-        l('settings', 'admin/config/voipvoice/lexicons/edit/'.$lexicon['lexicon']),
-        l('view phrases', 'admin/config/voipvoice/lexicons/phrases/'.$lexicon['lexicon']),
-        l('add phrase', 'admin/config/voipvoice/lexicons/add-phrase/'.$lexicon['lexicon']),
-        l('delete', 'admin/config/voipvoice/lexicons/delete/'.$lexicon['lexicon']),
-      );
+    $rows[] = array(
+      check_plain($lexicon['lexicon']),
+      l('settings', 'admin/config/voipvoice/lexicons/edit/'.$lexicon['lexicon']),
+      l('view phrases', 'admin/config/voipvoice/lexicons/phrases/'.$lexicon['lexicon']),
+      l('add phrase', 'admin/config/voipvoice/lexicons/add-phrase/'.$lexicon['lexicon']),
+      l('delete', 'admin/config/voipvoice/lexicons/delete/'.$lexicon['lexicon']),
+    );
   }
 
   $output = theme('table', array('header' => $header, 'rows'=> $rows));
@@ -1450,14 +1442,14 @@ function voipvoice_manage_lexicons() {
 
 function voipvoice_lexicon_phrases($lexicon) {
   $header = array(
-     t('PID'),
-	 array(
+    t('PID'),
+    array(
       'data' => t('Original Phrase'),
       'field' => 'phrase',
       'sort'  => 'asc',
-      ),
-     t('Delete')
-   );
+    ),
+    t('Delete')
+  );
 
   $query = db_select('voipvoice_phrases', 'vp')
     ->extend('PagerDefault')
@@ -1471,10 +1463,10 @@ function voipvoice_lexicon_phrases($lexicon) {
   $rows = array();
   while ($phrase = $query->fetchAssoc()) {
     $rows[] = array(
-	    $phrase['pid'],
-        $phrase['phrase'],
-        l('delete', 'admin/config/voipvoice/lexicons/delete-phrase/'.$phrase['pid']),
-      );
+      $phrase['pid'],
+      $phrase['phrase'],
+      l('delete', 'admin/config/voipvoice/lexicons/delete-phrase/'.$phrase['pid']),
+    );
   }
 
   $empty = t('No phrases.');
@@ -1490,7 +1482,7 @@ function voipvoice_delete_lexicon_form($form, &$form_state, $lexicon) {
   $form['message'] = array(
     '#type' => 'markup',
     '#markup' => t('Are you sure you wish to delete lexicon %lexicon. This will delete all the phrases and voices belonging to the lexicon as well.'.'<br/>',
-     array('%lexicon' => $lexicon)),
+      array('%lexicon' => $lexicon)),
   );
   $form['submit'] = array('#type' => 'submit', '#value' => t('Delete'));
 
@@ -1556,7 +1548,7 @@ function voipvoice_delete_voice_form($form, &$form_state, $voice_code) {
   $form['message'] = array(
     '#type' => 'markup',
     '#markup' => t('Are you sure you wish to delete voice %voice_code and all its recordings?',
-    array('%voice_code' => $voice_code)).'<br/>',
+        array('%voice_code' => $voice_code)).'<br/>',
   );
 
   $form['submit'] = array('#type' => 'submit', '#value' => t('Delete'));
@@ -1640,17 +1632,15 @@ function voipvoice_voice_phrase_readmore($pid) {
 
 function voipvoice_voice_phrase_translated_readmore($voice_code, $pid) {
   $phrase = voipvoice_voice_phrase_readmore($pid);
-  //@todo: shouldn't we return $translated_string ?
-  //$langcode = voipvoice_get_language($voice_code);
-  //$translated_string = t($phrase, array(), array('langcode' => $langcode));
-  return $phrase;
+  $langcode = voipvoice_get_language($voice_code);
+  $translated_string = t($phrase, array(), array('langcode' => $langcode));
+  return $translated_string;
 }
 
 function _voipvoice_remove_eol($string) {
   $string = str_replace("\n", '', $string);
   $string = str_replace("\r", '', $string);
   return $string;
-  //$string = str_replace("\r\n\", '', $string);
 }
 
 function _voipvoice_create_hash($string) {

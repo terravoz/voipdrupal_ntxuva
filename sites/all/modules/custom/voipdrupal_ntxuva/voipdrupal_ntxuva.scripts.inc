@@ -63,7 +63,6 @@ function voipdrupal_ntxuva_voipscript_load_script($script_name, $options = NULL)
       /*Language selection*/
       $script->addLabel('portuguese_version');
       $options['voice'] = 'ntxuva-portuguese';
-      //$options['voice'] = 'Fernanda';
       $script->addGosub('voipdrupal_ntxuva_main_menu_script', $options);
       $script->addGoto('hang_up');
 
