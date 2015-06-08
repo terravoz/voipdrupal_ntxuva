@@ -177,7 +177,7 @@ function voipdrupal_ntxuva_voipscript_load_script($script_name, $options = NULL)
       $script->addSay(v('You selected: '));
       //@todo: test this!
       //@todo: wrap it in v()
-      $script->addSay("^_voipdrupal_ntxuva_problem_type(%input_digits)");
+      $script->addSay(v("^_voipdrupal_ntxuva_problem_type(%input_digits)"));
 
       //Problem type 1,2 and 3 need container id.
       $script->addGotoIf('select_container', "^_voipdrupal_ntxuva_problem_type_needs_container(%input_digits)");
@@ -192,6 +192,7 @@ function voipdrupal_ntxuva_voipscript_load_script($script_name, $options = NULL)
       $script->addGetInput($prompt, $num_digits, $end_key, $timeout);
       $script->addSet('location', '%input_digits');
 
+      //@todo: validate category
       $script->addSay(v('You selected container number: '));
       $script->addSay('%input_digits');
       //@todo: get category name
@@ -250,6 +251,7 @@ function voipdrupal_ntxuva_voipscript_load_script($script_name, $options = NULL)
 
       $script->addLabel('accept_recording');
       $script->addSay(v("Submitting your report. Please wait. "));
+      //@todo: get location?
       $script->addSet('report_number', '^_voipdrupal_ntxuva_create_request (%phone_number, %location, %service_code, %recording_public_url)');
       $script->addGotoIf('report_unsuccessfully', "^%report_number == ''");
 
@@ -382,7 +384,6 @@ function _voipdrupal_ntxuva_validate_neighborhood($digit) {
   }
 }
 function _voipdrupal_ntxuva_validate_problem_type($digit) {
-  watchdog('debug', 'in _voipdrupal_ntxuva_validate_problem_type with '.$digit);
   $voipdrupal_ntxuva_services = variable_get('voipdrupal_ntxuva_services', array());
   return isset($voipdrupal_ntxuva_services["0".$digit]) ? TRUE: FALSE;
 }
