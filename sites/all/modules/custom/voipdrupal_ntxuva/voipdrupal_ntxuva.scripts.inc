@@ -382,6 +382,7 @@ function _voipdrupal_ntxuva_validate_neighborhood($digit) {
   }
 }
 function _voipdrupal_ntxuva_validate_problem_type($digit) {
+  watchdog('debug', 'in _voipdrupal_ntxuva_validate_problem_type with '.$digit);
   $voipdrupal_ntxuva_services = variable_get('voipdrupal_ntxuva_services', array());
   return isset($voipdrupal_ntxuva_services["0".$digit]) ? TRUE: FALSE;
 }
