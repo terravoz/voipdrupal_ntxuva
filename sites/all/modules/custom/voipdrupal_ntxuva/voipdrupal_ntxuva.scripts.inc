@@ -176,8 +176,8 @@ function voipdrupal_ntxuva_voipscript_load_script($script_name, $options = NULL)
 
       $script->addSay(v('You selected: '));
       //@todo: test this!
-      //@todo: wrap it in v()
-      $script->addSay(v("^_voipdrupal_ntxuva_problem_type(%input_digits)"));
+      //@todo: wraping in v doesn't work!
+      $script->addSay("^_voipdrupal_ntxuva_problem_type(%input_digits)");
 
       //Problem type 1,2 and 3 need container id.
       $script->addGotoIf('select_container', "^_voipdrupal_ntxuva_problem_type_needs_container(%input_digits)");
