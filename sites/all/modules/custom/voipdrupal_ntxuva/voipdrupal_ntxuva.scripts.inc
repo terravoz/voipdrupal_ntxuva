@@ -392,11 +392,10 @@ function _voipdrupal_ntxuva_problem_type($digit) {
 }
 
 function _voipdrupal_ntxuva_get_request_status($request) {
-  $part = str_split($request, 4);
-  $res = voipdrupal_ntxuva_call_open311("requests/{$part[0]}-{$part[1]}.json");
+  $res = voipdrupal_ntxuva_call_open311("requests/$request.json");
 
   // If successful, send status
-  if (isset($res[0]['status'])) {
+  if (isset($res[0]['status']) && isset($res[0]['service_request_id'])) {
     return $res[0]['status'];
   }
   else {
