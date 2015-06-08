@@ -312,7 +312,7 @@ function voipdrupal_ntxuva_voipscript_load_script($script_name, $options = NULL)
       $p_options_menu = v('The current status for report @report_number is: @report_status.
 To go back to the main menu, dial the star key.', $args);
       $input_options = array(
-      '*' => 'go_back',
+      '*' => 'back_to_main_menu',
     );
       $p_invalid_msg = v('Invalid input. Please try again.'); // Invalid option, please try again
       $script->addRunIvrMenu($p_options_menu, $input_options, $p_invalid_msg);

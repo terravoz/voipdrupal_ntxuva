@@ -90,10 +90,8 @@ function voipdrupal_ntxuva_call_open311($request_id, $type = 'GET', $request = a
   else {
     $context = NULL;
   }
-dpm($url);
   // Request status from Open311 Endpoint
   $json = file_get_contents($url, false, $context);
-  dpm($json);
   $res = json_decode($json, true);
   return $res;
 }
