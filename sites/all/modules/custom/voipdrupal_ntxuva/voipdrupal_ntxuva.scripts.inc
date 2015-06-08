@@ -321,14 +321,14 @@ To go back to the main menu, dial the star key.', $args);
       $script->addLabel('request_not_found');
       $p_options_menu = v('The requested report has not been found. To try again, dial 1. To go back to the main menu, dial the star key.');      $input_options = array(
         '1' => 'insert_request_number',
-        '*' => 'go_back',
+        '*' => 'back_to_main_menu',
       );
       $p_invalid_msg = v('Invalid input. Please try again.'); // Invalid option, please try again
       $script->addRunIvrMenu($p_options_menu, $input_options, $p_invalid_msg);
       $script->addGoto('%ivr_option_selected');
 
-      $script->addLabel('go_back');
-      $script->addReturn();
+      $script->addLabel('back_to_main_menu');
+      $script->addGosub('voipdrupal_ntxuva_main_menu_script', $options);
       break;
   }
 
