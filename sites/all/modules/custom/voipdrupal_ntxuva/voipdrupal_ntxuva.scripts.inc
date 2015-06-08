@@ -130,6 +130,26 @@ function voipdrupal_ntxuva_voipscript_load_script($script_name, $options = NULL)
       $script->addLabel('submit_welcome');
       $script->addSay(v('You are about to submit a new report to the MOPA system. '));
 
+      $script->addLabel('select_neighborhood');
+      $script->addSay(v('Please select the neighbourhood you want to report on. '));
+
+      $prompt = v('To report on Maxaquene A press 1.
+      To report on Polana Caniço B press 2.
+      To report on Inhagoia B press 3.
+      To report on Magoanine C press 4. ');
+      $timeout = 5;
+      $end_key = '';
+      $num_digits = 1;
+      $script->addGetInput($prompt, $num_digits, $end_key, $timeout);
+
+      $script->addGotoIf('set_neighborhood', "^_voipdrupal_ntxuva_validate_neighborhood(%input_digits)");
+
+      $script->addSay(v('Invalid option selected. Please try again. '));
+      $script->addGoto('select_neighborhood');
+
+      $script->addLabel('set_neighborhood');
+      $script->addSet('neighborhood', '%input_digits');
+
       $script->addLabel('select_problem_type');
       $voipdrupal_ntxuva_services = variable_get('voipdrupal_ntxuva_services', array());
       $prompt = array();
@@ -161,8 +181,8 @@ function voipdrupal_ntxuva_voipscript_load_script($script_name, $options = NULL)
 
       //Problem type 1,2 and 3 need container id.
       $script->addGotoIf('select_container', "^_voipdrupal_ntxuva_problem_type_needs_container(%input_digits)");
-      //Other problem types need neighborhood
-      $script->addGoto('select_neighborhood');
+      //Other problem types need quarter
+      $script->addGoto('select_quarter');
 
       $script->addLabel('select_container');
       $prompt = v("Please type the container id."); // Please, dial the number of the container. To go back to the beginning, dial star.
@@ -177,26 +197,6 @@ function voipdrupal_ntxuva_voipscript_load_script($script_name, $options = NULL)
       //@todo: get category name
       $script->addSay('<category_name>');
       $script->addGoto('record_message');
-
-      $script->addLabel('select_neighborhood');
-      $script->addSay(v('Please select the neighbourhood you want to report on. '));
-
-      $prompt = v('To report on Maxaquene A press 1.
-      To report on Polana Caniço B press 2.
-      To report on Inhagoia B press 3.
-      To report on Magoanine C press 4. ');
-      $timeout = 5;
-      $end_key = '';
-      $num_digits = 1;
-      $script->addGetInput($prompt, $num_digits, $end_key, $timeout);
-
-      $script->addGotoIf('set_neighborhood', "^_voipdrupal_ntxuva_validate_neighborhood(%input_digits)");
-
-      $script->addSay(v('Invalid option selected. Please try again. '));
-      $script->addGoto('select_neighborhood');
-
-      $script->addLabel('set_neighborhood');
-      $script->addSet('neighborhood', '%input_digits');
 
       $script->addLabel('select_quarter');
 
@@ -249,7 +249,7 @@ function voipdrupal_ntxuva_voipscript_load_script($script_name, $options = NULL)
       $script->addGoto('play_menu');
 
       $script->addLabel('accept_recording');
-
+      $script->addSay(v("Submitting your report. Please wait. "));
       $script->addSet('report_number', '^_voipdrupal_ntxuva_create_request (%phone_number, %location, %service_code, %recording_public_url)');
       $script->addGotoIf('report_unsuccessfully', "^%report_number == ''");
 
@@ -258,6 +258,7 @@ function voipdrupal_ntxuva_voipscript_load_script($script_name, $options = NULL)
       $args = array('@report_number' => '%report_number');
       $script->addSay(v("Your report has been submitted. It can be checked with report number @report_number. ", $args));
 
+      /*
       $script->addLabel('receive_via_sms');
       $prompt = v("To receive your report number via text message, dial 1. To go back to the main menu, press the star key. ");
       $timeout = 5;
@@ -270,10 +271,11 @@ function voipdrupal_ntxuva_voipscript_load_script($script_name, $options = NULL)
 
       $script->addSay(v('Invalid input. Please try again.'));
       $script->addGoto('receive_via_sms');
+      */
 
       $script->addLabel('text_report_id');
       //@todo: need to be translated through Drupal t()
-      $script->addSendText(t('Report number: %report_number'));
+      $script->addSendText(t('MOPA: your new report id is %report_number'));
       $script->addGoto('go_back');
 
       $script->addLabel('report_unsuccessfully');
