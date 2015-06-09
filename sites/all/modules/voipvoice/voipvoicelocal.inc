@@ -26,13 +26,13 @@ class VoipVoiceLocal extends VoipVoice {
     //Use voipvoice function to get locally recorder voice
     $url_or_text = voipvoice_get_prompt($text, $args, $this->getVoiceId());
     //get voice id in case local voice is not recorded.
-    if(!$as) {
+    /*if(!$as) {
       $voice = $this->getBestMatchedVoice();
       $voice_id = $voice->getVoiceId();
     }
-    else {
+    else {*/
       $voice_id = VoipVoice::getVoice($as)->getVoiceId();
-    }
+    //}
     return new VoipPrompt($url_or_text, $voice_id, $as);
   }
 

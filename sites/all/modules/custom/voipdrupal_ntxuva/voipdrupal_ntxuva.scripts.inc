@@ -45,10 +45,10 @@ function voipdrupal_ntxuva_voipscript_load_script($script_name, $options = NULL)
       $script->addLog($log_msg, 'voipdrupal_ntxuva');
 
       $script->addLabel('welcome');
-      $script->addSay(v('Welcome to the MOPA system.'));
+      $script->addSay(v('Bem-vindo ao sistema MOPA. '));
 
       $script->addLabel('language_selection');
-      $p_main_menu[] = v("For Portuguese, press one. For Changana, press two. For English, press three. ");
+      $p_main_menu[] = v("Para Português, digite 1. Para Changana, digite 2. Para Inglês, digite 3. Menu principal. ");
       $input_options = array(
         '1' => 'portuguese_version',
         '2' => 'changana_version',
@@ -206,7 +206,7 @@ function voipdrupal_ntxuva_voipscript_load_script($script_name, $options = NULL)
       $prompt = v('Now type in the number of your quarter after the beep. When done, press the star key. @beep', $args);
       $timeout = 10;
       $end_key = '*';
-      $num_digits = 99;
+      $num_digits = 3;
       $script->addGetInput($prompt, $num_digits, $end_key, $timeout);
 
       $script->addGotoIf('no input received', "^%input_digits == ''");
