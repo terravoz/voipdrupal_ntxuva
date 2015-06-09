@@ -43,7 +43,9 @@ function voipdrupal_ntxuva_sms_form($form, &$form_state) {
   $form['services'] = array(
     '#type' => 'item',
     '#title' => t('Services'),
-    '#markup' => implode(array_map(function ($v, $k) { return $k{1} . '=' . $v; }, variable_get('voipdrupal_ntxuva_services', array()), array_keys(variable_get('voipdrupal_ntxuva_services', array()))), '<br/>'),
+    '#markup' => implode(array_map(function ($v, $k) {
+      return $k{1} . '=' . $v;
+    }, variable_get('voipdrupal_ntxuva_services', array()), array_keys(variable_get('voipdrupal_ntxuva_services', array()))), '<br/>'),
   );
 
   $form['submit'] = array(
@@ -59,7 +61,7 @@ function voipdrupal_ntxuva_sms_form($form, &$form_state) {
 function voipdrupal_ntxuva_get_services($form, $form_state) {
   $services_json = voipdrupal_ntxuva_call_open311('services');
   $services = array();
-  foreach($services_json as $service_json) {
+  foreach ($services_json as $service_json) {
     $services[$service_json['service_code']] = $service_json['service_name'];
   }
   variable_set('voipdrupal_ntxuva_services', $services);
@@ -73,29 +75,65 @@ function voipdrupal_ntxuva_call_open311($request_id, $type = 'GET', $request = a
 
   $url = "{$endpoint}/{$request_id}.json";
 
-  if($type == 'POST') {
+  if ($type == 'POST') {
     $options = array(
       'http' => array(
-        'method'  => 'POST',
-        'content' => json_encode( $request ),
-        'header'=>  "Content-Type: application/json\r\n" .
+        'method' => 'POST',
+        'content' => json_encode($request),
+        'header' => "Content-Type: application/json\r\n" .
           "Accept: application/json\r\n"
       )
     );
 
-    watchdog("voipdrupal_ntxuva", "Preparing JSON: " . print_r($request,true)); // save request for debugging
+    watchdog("voipdrupal_ntxuva", "Preparing JSON: " . print_r($request, TRUE)); // save request for debugging
 
-    $context  = stream_context_create( $options );
+    $context = stream_context_create($options);
   }
   else {
     $context = NULL;
   }
   // Request status from Open311 Endpoint
-  $json = file_get_contents($url, false, $context);
-  $res = json_decode($json, true);
+  $json = file_get_contents($url, FALSE, $context);
+  $res = json_decode($json, TRUE);
   return $res;
 }
 
+function voipdrupal_ntxuva_get_locations() {
+  $json = '{"locations":[{"location":{"location_name":"Maxaquene - Baltazar","location_id":"032","neighbourhood":"Maxaquene","lat":"-25.84651667","long":"32.59408333"}},{"location":{"location_name":"Maxaquene - Custodio","location_id":"031","neighbourhood":"Maxaquene","lat":"-25.94306667","long":"32.57893333"}},{"location":{"location_name":"Magoanine C - Mercado","location_id":"012","neighbourhood":"Magoanine C","lat":"-25.84651667","long":"32.59408333"}}]}';
+  $json_decoded = json_decode($json);
+  return $json_decoded->locations;
+}
+
+function voipdrupal_ntxuva_get_containers($neighborhood) {
+  $locations = voipdrupal_ntxuva_get_locations();
+  $containers = array();
+  foreach ($locations as $location) {
+    if ($location->location->neighbourhood ==  $neighborhood) {
+      $containers[$location->location->location_id] = $location->location;
+    }
+  }
+  return $containers;
+}
+
+function voipdrupal_ntxuva_get_container_location($neighborhood, $container_id) {
+  $containers = voipdrupal_ntxuva_get_containers($neighborhood);
+  $location_result = array(
+    'lat' => $containers[$container_id]->lat,
+    'long' => $containers[$container_id]->long,
+  );
+  return $location_result;
+}
+
+function voipdrupal_ntxuva_get_neighborhood_name($neighborhood_id) {
+  $neighborhoods =  array(
+    1 => 'Maxaquene A',
+    2 => 'Polana Caniço B',
+    3 => 'Inhagoia B',
+    4 => 'Magoanine C',
+  );
+
+  return $neighborhoods[$neighborhood_id];
+}
 
 function voipdrupal_ntxuva_garbage_spots() {
   $terms = array();
@@ -862,8 +900,8 @@ function voipdrupal_ntxuva_garbage_spots() {
 function voipdrupal_ntxuva_garbage_spots_by_name($location) {
   $garbage_spots = voipdrupal_ntxuva_garbage_spots();
 
-  foreach($garbage_spots as $spot) {
-    if($spot['name'] == $location) {
+  foreach ($garbage_spots as $spot) {
+    if ($spot['name'] == $location) {
       return $spot;
     }
   }

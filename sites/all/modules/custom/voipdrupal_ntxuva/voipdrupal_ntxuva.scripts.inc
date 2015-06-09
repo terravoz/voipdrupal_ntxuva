@@ -192,17 +192,20 @@ function voipdrupal_ntxuva_voipscript_load_script($script_name, $options = NULL)
       $end_key = '';
       $num_digits = 2;
       $script->addGetInput($prompt, $num_digits, $end_key, $timeout);
-      $script->addSet('location', '%input_digits');
+      $script->addSet('container_name', "^_voipdrupal_ntxuva_validate_container(%neighborhood, %input_digits)");
 
-      //@todo: validate category
+      $script->addGotoIf('set_container', "^%container_name != ''");
+      $script->addSay(v('Invalid option selected. Please try again. '));
+      $script->addGoto('select_container');
+
+      $script->addLabel('set_container');
+      $script->addSet('container', '%input_digits');
       $script->addSay(v('You selected container number: '));
       $script->addSay('%input_digits');
-      //@todo: get category name
-      $script->addSay('<category_name>');
+      $script->addSay('%container_name');
       $script->addGoto('record_message');
 
       $script->addLabel('select_quarter');
-
       $beep_url = url('voip/sound/beep', array('absolute' => TRUE));
       $args = array('@beep' => $beep_url);
       $prompt = v('Now type in the number of your quarter after the beep. When done, press the star key. @beep', $args);
@@ -211,15 +214,18 @@ function voipdrupal_ntxuva_voipscript_load_script($script_name, $options = NULL)
       $num_digits = 3;
       $script->addGetInput($prompt, $num_digits, $end_key, $timeout);
 
-      $script->addGotoIf('no input received', "^%input_digits == ''");
-      $script->addGoTo('set_quarter');
+      $script->addSet('bairro_name', "^_voipdrupal_ntxuva_validate_quarter(%neighborhood, %input_digits)");
 
-      $script->addLabel('no input received');
+      $script->addGotoIf('set_quarter', "^%bairro_name != ''");
       $script->addSay(v('Invalid option selected. Please try again. '));
-      $script->addGoto('select_quarter');
+      $script->addGoto('select_container');
 
       $script->addLabel('set_quarter');
       $script->addSet('quarter', '%input_digits');
+      $script->addSay(v('You selected quarter number: '));
+      $script->addSay('%input_digits');
+      $script->addSay(v('from'));
+      $script->addSay('%bairro_name');
 
       //@todo: get location name
       $script->addLabel('record_message');
@@ -254,7 +260,7 @@ function voipdrupal_ntxuva_voipscript_load_script($script_name, $options = NULL)
       $script->addLabel('accept_recording');
       $script->addSay(v("Submitting your report. Please wait. "));
       //@todo: get location?
-      $script->addSet('report_number', '^_voipdrupal_ntxuva_create_request (%phone_number, %location, %service_code, %recording_public_url)');
+      $script->addSet('report_number', '^_voipdrupal_ntxuva_create_request (%phone_number, %neighborhood, %container, %quarter, %service_code, %recording_public_url)');
       $script->addGotoIf('report_unsuccessfully', "^%report_number == ''");
 
 
@@ -340,21 +346,24 @@ To go back to the main menu, dial the star key.', $args);
 }
 
 //_voipdrupal_ntxuva_create_request('+385998844502', 20, 4, 'http://void.media.mit.edu/voipdrupal_ntxuva/sites/default/files/audio_0.mp3');
-function _voipdrupal_ntxuva_create_request($phone, $location, $service_code, $recording_public_url) {
+function _voipdrupal_ntxuva_create_request($phone, $neighborhood, $container_id, $quarter, $service_code, $recording_public_url) {
 
-  //@todo: get location
-  $location_result = voipdrupal_ntxuva_garbage_spots_by_name('0' . $location);
+  if(isset($container)) {
+    $location_result = voipdrupal_ntxuva_get_container_location($neighborhood, $container_id);
+  }
+  else {
+    //@todo: get location from quarters
+  }
 
-  watchdog("ntxuva_sms", "Location 1: " . print_r($location, TRUE)); // save request for debugging
-  watchdog("ntxuva_sms", "Location 2: " . print_r($location_result, TRUE)); // save request for debugging
+  watchdog("ntxuva_sms", "Location res: " . print_r($location_result, TRUE)); // save request for debugging
 
   // Validate location
   if (empty($location_result)) {
     return '';
   }
 
-  $lat = $location_result['field_lat']['und'][0]['value'];
-  $long = $location_result['field_long']['und'][0]['value'];
+  $lat = $location_result['lat'];
+  $long = $location_result['long'];
 
   // Prepare JSON
   $request = array(
@@ -366,9 +375,9 @@ function _voipdrupal_ntxuva_create_request($phone, $location, $service_code, $re
     'media_url' => $recording_public_url,
   );
 
-  if (!empty($location_result['field_address_string']['und'][0]['value'])) {
+  /*if (!empty($location_result['field_address_string']['und'][0]['value'])) {
     $request['address_string'] = $location_result['field_address_string']['und'][0]['value'];
-  }
+  }*/
   $res = voipdrupal_ntxuva_call_open311('requests', 'POST', $request);
 
   // Define reply message
@@ -416,4 +425,10 @@ function _voipdrupal_ntxuva_problem_type_needs_container($digit) {
   else {
     return FALSE;
   }
+}
+
+function _voipdrupal_ntxuva_validate_container($neighborhood_id, $container_id) {
+  $neighborhood = voipdrupal_ntxuva_get_neighborhood_name($neighborhood_id);
+  $containers = voipdrupal_ntxuva_get_containers($neighborhood);
+  return isset($containers[$container_id]) ? $containers[$container_id] : '';
 }
