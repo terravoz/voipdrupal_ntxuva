@@ -430,5 +430,10 @@ function _voipdrupal_ntxuva_problem_type_needs_container($digit) {
 function _voipdrupal_ntxuva_validate_container($neighborhood_id, $container_id) {
   $neighborhood = voipdrupal_ntxuva_get_neighborhood_name($neighborhood_id);
   $containers = voipdrupal_ntxuva_get_containers($neighborhood);
-  return isset($containers[$container_id]) ? $containers[$container_id] : '';
+  return isset($containers[$container_id]) ? $containers[$container_id]->location_name : '';
+}
+
+//@todo:
+function _voipdrupal_ntxuva_validate_quarter($neighborhood_id, $container_id) {
+  return '';
 }
