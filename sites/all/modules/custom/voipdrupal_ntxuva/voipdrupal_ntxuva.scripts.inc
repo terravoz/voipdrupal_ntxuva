@@ -48,7 +48,9 @@ function voipdrupal_ntxuva_voipscript_load_script($script_name, $options = NULL)
       $script->addSay(v('Bem-vindo ao sistema MOPA. '));
 
       $script->addLabel('language_selection');
-      $p_main_menu[] = v("Para Português, digite 1. Para Changana, digite 2. Para Inglês, digite 3. Menu principal. ");
+      $p_main_menu[] = v("Para Português, digite 1. ");
+      $p_main_menu[] = v("Para Changana, digite 2. ");
+      $p_main_menu[] = v("Para Inglês, digite 3. ");
       $input_options = array(
         '1' => 'portuguese_version',
         '2' => 'changana_version',
