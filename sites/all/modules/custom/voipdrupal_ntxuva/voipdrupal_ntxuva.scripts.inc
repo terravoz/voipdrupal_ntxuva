@@ -346,9 +346,10 @@ To go back to the main menu, dial the star key.', $args);
 }
 
 //_voipdrupal_ntxuva_create_request('+385998844502', 20, 4, 'http://void.media.mit.edu/voipdrupal_ntxuva/sites/default/files/audio_0.mp3');
-function _voipdrupal_ntxuva_create_request($phone, $neighborhood, $container_id, $quarter, $service_code, $recording_public_url) {
+function _voipdrupal_ntxuva_create_request($phone, $neighborhood_id, $container_id, $quarter, $service_code, $recording_public_url) {
 
-  if(isset($container)) {
+  if(isset($container_id)) {
+    $neighborhood = voipdrupal_ntxuva_get_neighborhood_name($neighborhood_id);
     $location_result = voipdrupal_ntxuva_get_container_location($neighborhood, $container_id);
   }
   else {
