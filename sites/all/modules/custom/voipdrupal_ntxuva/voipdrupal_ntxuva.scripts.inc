@@ -45,7 +45,7 @@ function voipdrupal_ntxuva_voipscript_load_script($script_name, $options = NULL)
       $script->addLog($log_msg, 'voipdrupal_ntxuva');
 
       $script->addLabel('welcome');
-      $script->addSay(v('Bem-vindo ao sistema MOPA. '));
+      $script->addSay(v('Welcome to the MOPA system. '));
 
       $script->addLabel('language_selection');
       $p_main_menu[] = v("For Portuguese, dial 1. ");
