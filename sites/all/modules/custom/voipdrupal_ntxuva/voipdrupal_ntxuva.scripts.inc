@@ -36,7 +36,7 @@ function voipdrupal_ntxuva_voipscript_load_script($script_name, $options = NULL)
       $options['direction'] = '%direction';
       $options['dest_number'] = '%dest_number';
       $options['caller_number'] = '%caller_number';
-      voipvoice_set_current_voice('ntxuva-english');
+      voipvoice_set_current_voice('ntxuva-portuguese');
       $script->addSet('max_session_duration', 0);
 
       // log the call
