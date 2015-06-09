@@ -190,7 +190,7 @@ function voipdrupal_ntxuva_voipscript_load_script($script_name, $options = NULL)
       $prompt = v("Please type the container id."); // Please, dial the number of the container. To go back to the beginning, dial star.
       $timeout = 5;
       $end_key = '';
-      $num_digits = 2;
+      $num_digits = 3;
       $script->addGetInput($prompt, $num_digits, $end_key, $timeout);
       $script->addSet('container_name', "^_voipdrupal_ntxuva_validate_container(%neighborhood, %input_digits)");
 
