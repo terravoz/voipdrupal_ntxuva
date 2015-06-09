@@ -126,7 +126,7 @@ function voipdrupal_ntxuva_get_container_location($neighborhood, $container_id) 
 
 function voipdrupal_ntxuva_get_neighborhood_name($neighborhood_id) {
   $neighborhoods =  array(
-    1 => 'Maxaquene A',
+    1 => 'Maxaquene',
     2 => 'Polana Caniço B',
     3 => 'Inhagoia B',
     4 => 'Magoanine C',
