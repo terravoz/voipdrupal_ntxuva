@@ -380,6 +380,7 @@ function _voipdrupal_ntxuva_create_request($phone, $neighborhood_id, $container_
     $request['address_string'] = $location_result['field_address_string']['und'][0]['value'];
   }*/
   $res = voipdrupal_ntxuva_call_open311('requests', 'POST', $request);
+  watchdog("ntxuva_sms", "Report save res: " . print_r($res, TRUE)); // save request for debugging
 
   // Define reply message
   // If error, send verbose message to user.
