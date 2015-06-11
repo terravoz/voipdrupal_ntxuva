@@ -54,10 +54,16 @@ function voipdrupal_ntxuva_sms_form($form, &$form_state) {
     '#submit' => array('voipdrupal_ntxuva_get_services'),
   );
 
+  $form['import_locations'] = array(
+    '#type' => 'submit',
+    '#value' => t('Import Locations'),
+    '#submit' => array('voipdrupal_ntxuva_import_locations'),
+  );
+
   return system_settings_form($form);
 }
 
-//@todo: put in cron
+//@todo: put in install
 function voipdrupal_ntxuva_get_services($form, $form_state) {
   $services_json = voipdrupal_ntxuva_call_open311('services');
   $services = array();
@@ -66,6 +72,30 @@ function voipdrupal_ntxuva_get_services($form, $form_state) {
   }
   variable_set('voipdrupal_ntxuva_services', $services);
   drupal_set_message('Services refreshed');
+}
+
+function voipdrupal_ntxuva_import_locations($form, $form_state) {
+  $url = 'http://mopa.opengov.cc/locations/json';
+  $json = file_get_contents($url);
+  $locations_json = json_decode($json, TRUE);
+  $quarters = array();
+  $containers = array();
+//dpm($locations_json);
+  foreach ($locations_json['locations'] as $location) {
+    if($location['location']['location_type'] == 'quarter') {
+      $quarters[$location['location']['neighbourhood']][$location['location']['location_id']] = $location['location'];
+    }
+    else {
+      $containers[$location['location']['neighbourhood']][$location['location']['location_id']] = $location['location'];
+    }
+  }
+
+  //dpm($quarters);
+  //dpm($containers);
+  variable_set('voipdrupal_ntxuva_quarters', $quarters);
+  variable_set('voipdrupal_ntxuva_containers', $containers);
+
+  drupal_set_message('Locations imported');
 }
 
 function voipdrupal_ntxuva_call_open311($request_id, $type = 'GET', $request = array()) {
@@ -98,36 +128,27 @@ function voipdrupal_ntxuva_call_open311($request_id, $type = 'GET', $request = a
   return $res;
 }
 
-function voipdrupal_ntxuva_get_locations() {
-  $json = '{"locations":[{"location":{"location_name":"Maxaquene - Baltazar","location_id":"032","neighbourhood":"Maxaquene","lat":"-25.84651667","long":"32.59408333"}},{"location":{"location_name":"Maxaquene - Custodio","location_id":"031","neighbourhood":"Maxaquene","lat":"-25.94306667","long":"32.57893333"}},{"location":{"location_name":"Magoanine C - Mercado","location_id":"012","neighbourhood":"Magoanine C","lat":"-25.84651667","long":"32.59408333"}}]}';
-  $json_decoded = json_decode($json);
-  return $json_decoded->locations;
-}
+function voipdrupal_ntxuva_get_location_coordinates($neighborhood_id, $location_id, $type) {
+  $neighborhood = voipdrupal_ntxuva_get_neighborhood_name($neighborhood_id);
 
-function voipdrupal_ntxuva_get_containers($neighborhood) {
-  $locations = voipdrupal_ntxuva_get_locations();
-  $containers = array();
-  foreach ($locations as $location) {
-    if ($location->location->neighbourhood ==  $neighborhood) {
-      $containers[$location->location->location_id] = $location->location;
-    }
+  if($type == 'quarter') {
+    $locations = variable_get('voipdrupal_ntxuva_quarters', array());
   }
-  return $containers;
-}
+  else {
+    $locations = variable_get('voipdrupal_ntxuva_containers', array());
+  }
 
-function voipdrupal_ntxuva_get_container_location($neighborhood, $container_id) {
-  $containers = voipdrupal_ntxuva_get_containers($neighborhood);
   $location_result = array(
-    'lat' => $containers[$container_id]->lat,
-    'long' => $containers[$container_id]->long,
+    'lat' => $locations[$neighborhood][$location_id]['lat'],
+    'long' => $locations[$neighborhood][$location_id]['long'],
   );
   return $location_result;
 }
 
 function voipdrupal_ntxuva_get_neighborhood_name($neighborhood_id) {
   $neighborhoods =  array(
-    1 => 'Maxaquene',
-    2 => 'Polana Caniço B',
+    1 => 'Maxaquene A',
+    2 => 'Polana Canico B',
     3 => 'Inhagoia B',
     4 => 'Magoanine C',
   );

@@ -346,20 +346,21 @@ To go back to the main menu, dial the star key.', $args);
 }
 
 //_voipdrupal_ntxuva_create_request('+385998844502', 20, 4, 'http://void.media.mit.edu/voipdrupal_ntxuva/sites/default/files/audio_0.mp3');
-function _voipdrupal_ntxuva_create_request($phone, $neighborhood_id, $container_id, $quarter, $service_code, $recording_public_url) {
-
+function _voipdrupal_ntxuva_create_request($phone, $neighborhood_id, $container_id, $quarter_id, $service_code, $recording_public_url) {
   if(isset($container_id)) {
-    $neighborhood = voipdrupal_ntxuva_get_neighborhood_name($neighborhood_id);
-    $location_result = voipdrupal_ntxuva_get_container_location($neighborhood, $container_id);
+    $location_id = $container_id;
+    $type = 'container';
   }
   else {
-    //@todo: get location from quarters
+    $location_id = $quarter_id;
+    $type = 'quarter';
   }
 
+  $location_result = voipdrupal_ntxuva_get_location_coordinates($neighborhood_id, $location_id, $type);
   watchdog("ntxuva_sms", "Location res: " . print_r($location_result, TRUE)); // save request for debugging
 
   // Validate location
-  if (empty($location_result)) {
+  if (empty($location_result['lat']) || empty($location_result['long'])) {
     return '';
   }
 
@@ -431,11 +432,12 @@ function _voipdrupal_ntxuva_problem_type_needs_container($digit) {
 
 function _voipdrupal_ntxuva_validate_container($neighborhood_id, $container_id) {
   $neighborhood = voipdrupal_ntxuva_get_neighborhood_name($neighborhood_id);
-  $containers = voipdrupal_ntxuva_get_containers($neighborhood);
-  return isset($containers[$container_id]) ? $containers[$container_id]->location_name : '';
+  $containers = variable_get('voipdrupal_ntxuva_containers', array());
+  return isset($containers[$neighborhood][$container_id]) ? $containers[$neighborhood][$container_id]['location_name'] : '';
 }
 
-//@todo:
 function _voipdrupal_ntxuva_validate_quarter($neighborhood_id, $container_id) {
-  return '';
+  $neighborhood = voipdrupal_ntxuva_get_neighborhood_name($neighborhood_id);
+  $quarters = variable_get('voipdrupal_ntxuva_quarters', array());
+  return isset($quarters[$neighborhood][$container_id]) ? $quarters[$neighborhood][$container_id]['location_name'] : '';
 }
