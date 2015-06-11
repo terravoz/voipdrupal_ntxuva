@@ -214,9 +214,9 @@ function voipdrupal_ntxuva_voipscript_load_script($script_name, $options = NULL)
       $num_digits = 3;
       $script->addGetInput($prompt, $num_digits, $end_key, $timeout);
 
-      $script->addSet('quarter', "^_voipdrupal_ntxuva_validate_quarter(%neighborhood, %input_digits)");
+      $script->addSet('bairro_name', "^_voipdrupal_ntxuva_validate_quarter(%neighborhood, %input_digits)");
 
-      $script->addGotoIf('set_quarter', "^%quarter != ''");
+      $script->addGotoIf('set_quarter', "^%bairro_name != ''");
       $script->addSay(v('Invalid option selected. Please try again. '));
       $script->addGoto('select_quarter');
 
