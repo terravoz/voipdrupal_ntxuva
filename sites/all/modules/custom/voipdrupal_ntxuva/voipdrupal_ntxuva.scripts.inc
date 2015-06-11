@@ -420,6 +420,8 @@ function _voipdrupal_ntxuva_get_request_status($request) {
 }
 
 function _voipdrupal_ntxuva_problem_type_needs_container($digit) {
+  watchdog('debug', "_voipdrupal_ntxuva_problem_type_needs_container($digit)");
+
   //Only to be executed if type is 1, 2 or 3
   $digit = (int) $digit;
   if ($digit >= 1 && $digit <= 3) {
