@@ -190,7 +190,7 @@ function voipdrupal_ntxuva_voipscript_load_script($script_name, $options = NULL)
       $prompt = v("Please type the container id."); // Please, dial the number of the container. To go back to the beginning, dial star.
       $timeout = 5;
       $end_key = '';
-      $num_digits = 4;
+      $num_digits = 2;
       $script->addGetInput($prompt, $num_digits, $end_key, $timeout);
       $script->addSet('container_name', "^_voipdrupal_ntxuva_validate_container(%neighborhood, %input_digits)");
 
@@ -211,7 +211,7 @@ function voipdrupal_ntxuva_voipscript_load_script($script_name, $options = NULL)
       $prompt = v('Now type in the number of your quarter after the beep. When done, press the star key. @beep', $args);
       $timeout = 10;
       $end_key = '*';
-      $num_digits = 3;
+      $num_digits = 4;
       $script->addGetInput($prompt, $num_digits, $end_key, $timeout);
 
       $script->addSet('bairro_name', "^_voipdrupal_ntxuva_validate_quarter(%neighborhood, %input_digits)");
