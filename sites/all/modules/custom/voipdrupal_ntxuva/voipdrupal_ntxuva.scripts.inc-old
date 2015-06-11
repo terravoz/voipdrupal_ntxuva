@@ -214,11 +214,11 @@ function voipdrupal_ntxuva_voipscript_load_script($script_name, $options = NULL)
       $num_digits = 3;
       $script->addGetInput($prompt, $num_digits, $end_key, $timeout);
 
-      $script->addSet('quarter', "^_voipdrupal_ntxuva_validate_quarter(%neighborhood, %input_digits)");
+      $script->addSet('bairro_name', "^_voipdrupal_ntxuva_validate_quarter(%neighborhood, %input_digits)");
 
-      $script->addGotoIf('set_quarter', "^%quarter != ''");
+      $script->addGotoIf('set_quarter', "^%bairro_name != ''");
       $script->addSay(v('Invalid option selected. Please try again. '));
-      $script->addGoto('select_quarter');
+      $script->addGoto('select_container');
 
       $script->addLabel('set_quarter');
       $script->addSet('quarter', '%input_digits');
@@ -437,11 +437,9 @@ function _voipdrupal_ntxuva_validate_container($neighborhood_id, $container_id) 
   return isset($containers[$neighborhood][$container_id]) ? $containers[$neighborhood][$container_id]['location_name'] : '';
 }
 
-function _voipdrupal_ntxuva_validate_quarter($neighborhood_id, $quarter_id) {
-  watchdog('debug', "_voipdrupal_ntxuva_validate_quarter($neighborhood_id, $quarter_id)");
-// TODO: For now, we're just returning a simple string
-return "123";
+function _voipdrupal_ntxuva_validate_quarter($neighborhood_id, $container_id) {
+  watchdog('debug', "_voipdrupal_ntxuva_validate_quarter($neighborhood_id, $container_id)");
   $neighborhood = voipdrupal_ntxuva_get_neighborhood_name($neighborhood_id);
   $quarters = variable_get('voipdrupal_ntxuva_quarters', array());
-  return isset($quarters[$neighborhood][$quarter_id]) ? $quarters[$neighborhood][$quarter_id]['location_name'] : '';
+  return isset($quarters[$neighborhood][$container_id]) ? $quarters[$neighborhood][$container_id]['location_name'] : '';
 }
