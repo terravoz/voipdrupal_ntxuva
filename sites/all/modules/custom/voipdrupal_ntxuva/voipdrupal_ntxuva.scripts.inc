@@ -431,12 +431,14 @@ function _voipdrupal_ntxuva_problem_type_needs_container($digit) {
 }
 
 function _voipdrupal_ntxuva_validate_container($neighborhood_id, $container_id) {
+  watchdog('debug', "_voipdrupal_ntxuva_validate_container($neighborhood_id, $container_id)");
   $neighborhood = voipdrupal_ntxuva_get_neighborhood_name($neighborhood_id);
   $containers = variable_get('voipdrupal_ntxuva_containers', array());
   return isset($containers[$neighborhood][$container_id]) ? $containers[$neighborhood][$container_id]['location_name'] : '';
 }
 
 function _voipdrupal_ntxuva_validate_quarter($neighborhood_id, $container_id) {
+  watchdog('debug', "_voipdrupal_ntxuva_validate_quarter($neighborhood_id, $container_id)");
   $neighborhood = voipdrupal_ntxuva_get_neighborhood_name($neighborhood_id);
   $quarters = variable_get('voipdrupal_ntxuva_quarters', array());
   return isset($quarters[$neighborhood][$container_id]) ? $quarters[$neighborhood][$container_id]['location_name'] : '';
