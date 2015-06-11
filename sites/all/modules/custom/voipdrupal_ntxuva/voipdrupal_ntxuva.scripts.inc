@@ -441,8 +441,6 @@ function _voipdrupal_ntxuva_validate_container($neighborhood_id, $container_id) 
 
 function _voipdrupal_ntxuva_validate_quarter($neighborhood_id, $quarter_id) {
   watchdog('debug', "_voipdrupal_ntxuva_validate_quarter($neighborhood_id, $quarter_id)");
-// TODO: For now, we're just returning a simple string
-return "123";
   $neighborhood = voipdrupal_ntxuva_get_neighborhood_name($neighborhood_id);
   $quarters = variable_get('voipdrupal_ntxuva_quarters', array());
   return isset($quarters[$neighborhood][$quarter_id]) ? $quarters[$neighborhood][$quarter_id]['location_name'] : '';
