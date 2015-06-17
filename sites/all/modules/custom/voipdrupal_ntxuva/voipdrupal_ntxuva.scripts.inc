@@ -79,6 +79,7 @@ function voipdrupal_ntxuva_voipscript_load_script($script_name, $options = NULL)
       $script->addGoto('hang_up');
 
       $script->addLabel('hang_up');
+      voipvoice_set_current_voice($options['voice']);
       $script->addSay(v('Thank you for calling the MOPA system.'));
       $script->addHangup();
       break;
