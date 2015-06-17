@@ -114,6 +114,10 @@ function voipdrupal_ntxuva_voipscript_load_script($script_name, $options = NULL)
       $script->addSay(v('About MOPA.'));
       $script->addGoto('main_menu');
 
+      $script->addLabel('invalid_option');
+      $script->addSay($p_invalid_msg);
+      $script->addGoto('main_menu');
+
       $script->addReturn();
       break;
     case 'voipdrupal_ntxuva_submit_report_script':
@@ -411,8 +415,8 @@ function _voipdrupal_ntxuva_get_request_status($request) {
   $res = voipdrupal_ntxuva_call_open311("requests/$request.json");
 
   // If successful, send status
-  if (isset($res[0]['status']) && isset($res[0]['service_request_id'])) {
-    return $res[0]['status'];
+  if (isset($res[0]['service_notice']) && isset($res[0]['service_request_id'])) {
+    return $res[0]['service_notice'];
   }
   else {
     return 0;
