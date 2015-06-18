@@ -35,13 +35,17 @@ function voipdrupal_ntxuva_voipscript_load_script($script_name, $options = NULL)
       $script->addSay('test script');
       $script->addSet('myvar', 'this is my variable in subscript');
       $script->addGosub('voipdrupal_ntxuva_test_subscript');
+      $script->addSay('back to main script');
+      $script->addSay('%myvar');
+      $script->addHangup();
       break;
     case 'voipdrupal_ntxuva_test_subscript':
       $script = new VoipScript('voipdrupal_ntxuva_test_subscript');
       $script->addSetVoice('woman');
       $script->addSay('now in subscript');
       $script->addSay('%myvar');
-      $script->addHangup();
+      $script->addSet('myvar', 'I changed var in subscript');
+      $script->addReturn();
       break;
     case 'voipdrupal_ntxuva_welcome_script':
       $script = new VoipScript('voipdrupal_ntxuva_welcome_script');
