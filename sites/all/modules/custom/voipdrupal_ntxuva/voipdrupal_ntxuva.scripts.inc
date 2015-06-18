@@ -307,8 +307,7 @@ function voipdrupal_ntxuva_voipscript_load_script($script_name, $options = NULL)
       $num_digits = 1;
       $script->addGetInput($prompt, $num_digits, $end_key, $timeout);
 
-      $script->addGotoIf('container_name', "^_voipdrupal_ntxuva_validate_container(%neighborhood, %input_digits)");
-
+      $script->addSet('container_name', "^_voipdrupal_ntxuva_validate_container(%neighborhood, %input_digits)");
       $script->addGotoIf('set_container', "^%container_name != ''");
       $script->addSay(v('Invalid option selected. Please try again. '));
       $script->addGoto('select_container');
