@@ -295,13 +295,12 @@ function voipdrupal_ntxuva_voipscript_load_script($script_name, $options = NULL)
 
       $prompt = array();
       $prompt[] = v('Please select the the container id. ');
-      $ivr_key = 1;
       foreach ($containers as $key => $container) {
+        $ivr_key = $key+1;
         $prompt[] = v('For ');
         $prompt[] = v($container['location_name']);
         $prompt[] = v(' dial ');
         $prompt[] = v($ivr_key);
-        $ivr_key++;
       }
       $timeout = 5;
       $end_key = '';
