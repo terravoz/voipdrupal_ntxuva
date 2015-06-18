@@ -456,7 +456,7 @@ function _voipdrupal_ntxuva_problem_type_needs_container($digit) {
 }
 
 function _voipdrupal_ntxuva_validate_container($neighborhood_id, $input_digits) {
-  $key = $input_digits+1;
+  $key = $input_digits-1;
   watchdog('debug', "_voipdrupal_ntxuva_validate_container($neighborhood_id, $input_digits)");
   $containers = voipdrupal_ntxuva_get_containers_for_neighborhood($neighborhood_id);
   return isset($containers[$key]) ? $containers[$key]['location_name'] : '';
