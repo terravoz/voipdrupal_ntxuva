@@ -10,6 +10,7 @@
  */
 function voipdrupal_ntxuva_voipscript_get_script_names() {
   $script_names[] = 'voipdrupal_ntxuva_welcome_script';
+  $script_names[] = 'voipdrupal_ntxuva_test_script';
   $script_names[] = 'voipdrupal_ntxuva_sms_callmeback_script';
 
   return $script_names;
@@ -28,7 +29,20 @@ function voipdrupal_ntxuva_voipscript_load_script($script_name, $options = NULL)
       $script->addDial();
       $script->addHangup();
       break;
-
+    case 'voipdrupal_ntxuva_test_script':
+      $script = new VoipScript('voipdrupal_ntxuva_test_script');
+      $script->addSetVoice('woman');
+      $script->addSay('test script');
+      $script->addSet('myvar', 'this is my variable in subscript');
+      $script->addGosub('voipdrupal_ntxuva_test_subscript');
+      break;
+    case 'voipdrupal_ntxuva_test_subscript':
+      $script = new VoipScript('voipdrupal_ntxuva_test_subscript');
+      $script->addSetVoice('woman');
+      $script->addSay('now in subscript');
+      $script->addSay('%myvar');
+      $script->addHangup();
+      break;
     case 'voipdrupal_ntxuva_welcome_script':
       $script = new VoipScript('voipdrupal_ntxuva_welcome_script');
       $script->addSetVoice('woman');
@@ -166,7 +180,7 @@ function voipdrupal_ntxuva_voipscript_load_script($script_name, $options = NULL)
         $prompt[] = v('For ');
         $prompt[] = v($ntxuva_service);
         $prompt[] = v(' dial ');
-        $prompt[] = new VoipPrompt($ivr_key);
+        $prompt[] = v($ivr_key);
       }
       $timeout = 5;
       $end_key = '';
@@ -192,22 +206,8 @@ function voipdrupal_ntxuva_voipscript_load_script($script_name, $options = NULL)
       $script->addGoto('select_quarter');
 
       $script->addLabel('select_container');
-      $prompt = v("Please type the container id."); // Please, dial the number of the container. To go back to the beginning, dial star.
-      $timeout = 5;
-      $end_key = '';
-      $num_digits = 2;
-      $script->addGetInput($prompt, $num_digits, $end_key, $timeout);
-      $script->addSet('container_name', "^_voipdrupal_ntxuva_validate_container(%neighborhood, %input_digits)");
-
-      $script->addGotoIf('set_container', "^%container_name != ''");
-      $script->addSay(v('Invalid option selected. Please try again. '));
-      $script->addGoto('select_container');
-
-      $script->addLabel('set_container');
-      $script->addSet('container', '%input_digits');
-      $script->addSay(v('You selected container number: '));
-      $script->addSay('%input_digits');
-      $script->addSay('%container_name');
+      $options['neighborhood'] = '%neighborhood';
+      $script->addGosub('voipdrupal_ntxuva_select_container', $options);
       $script->addGoto('record_message');
 
       $script->addLabel('select_quarter');
@@ -232,17 +232,127 @@ function voipdrupal_ntxuva_voipscript_load_script($script_name, $options = NULL)
       $script->addSay(v('from'));
       $script->addSay('%bairro_name');
 
-      //@todo: get location name
       $script->addLabel('record_message');
-      //$script->addSet('voipscript_hangup_callback', '_voipdrupal_ntxuva_record_on_hang_up');
       $prompt = v("Please record your report after the beep. When done, press the star key. "); // Please, record your message after the beep. To end, press star.
       $timeout = 5;
       $end_key = '*';
       $max_length = 3600; //1 hour
       $script->addRecord($prompt, $timeout, $end_key, $max_length);
 
-      // reset the hang up handler
-      //$script->addSet('voipscript_hangup_callback', '');
+      $script->addLabel('play_menu');
+      $prompt = v("To listen to your report, dial 1. To record it once again, dial 2. To accept it, dial 3. "); // To accept, dial 1. To record once again, press 2.
+      $timeout = 5;
+      $end_key = '';
+      $num_digits = 1;
+      $script->addGetInput($prompt, $num_digits, $end_key, $timeout);
+
+      $script->addGotoIf('listen', "^%input_digits == '1'");
+      $script->addGotoIf('record_message', "^%input_digits == '2'");
+      $script->addGotoIf('accept_recording', "^%input_digits == '3'");
+
+      $script->addSay(v('Invalid input. Please try again.'));
+      $script->addGoto('play_menu');
+
+      $script->addLabel('listen');
+      $script->addSay('%recording_public_url'); // This is what you recorded:
+      $script->addGoto('play_menu');
+
+      $script->addLabel('accept_recording');
+      $script->addSay(v("Submitting your report. Please wait. "));
+      //@todo: get location?
+      $script->addSet('report_number', '^_voipdrupal_ntxuva_create_request (%phone_number, %neighborhood, %container, %quarter, %service_code, %recording_public_url)');
+      $script->addGotoIf('report_unsuccessfully', "^%report_number == ''");
+
+
+      $script->addLabel('report_success');
+      $args = array('@report_number' => '%report_number');
+      $script->addSay(v("Your report has been submitted. It can be checked with report number @report_number. ", $args));
+
+      /*
+      $script->addLabel('receive_via_sms');
+      $prompt = v("To receive your report number via text message, dial 1. To go back to the main menu, press the star key. ");
+      $timeout = 5;
+      $end_key = '';
+      $num_digits = 1;
+      $script->addGetInput($prompt, $num_digits, $end_key, $timeout);
+
+      $script->addGotoIf('text_report_id', "^%input_digits == '1'");
+      $script->addGotoIf('back_to_main_menu', "^%input_digits == '*'");
+
+      $script->addSay(v('Invalid input. Please try again.'));
+      $script->addGoto('receive_via_sms');
+      */
+
+      $script->addLabel('text_report_id');
+      //@todo: need to be translated through Drupal t()
+      $script->addSendText(t('MOPA: your new report id is %report_number'));
+      $script->addGoto('go_back');
+
+      $script->addLabel('report_unsuccessfully');
+      $script->addSay(v('Processing failure. Could not create request. Please contact the system administrator as soon as possible.'));
+      $script->addGoto('go_back');
+
+      $script->addLabel('back_to_main_menu');
+      $script->addGosub('voipdrupal_ntxuva_main_menu_script', $options);
+
+      $script->addLabel('go_back');
+      $script->addReturn();
+      break;
+    case 'voipdrupal_ntxuva_select_container':
+      $script = new VoipScript('voipdrupal_ntxuva_select_container');
+      $voice = $options['voice'];
+      voipvoice_set_current_voice($voice);
+
+      $neighborhood = $options['neighborhood'];
+      $script->addSet('neighborhood', $neighborhood);
+      $containers = voipdrupal_ntxuva_get_containers_for_neighborhood($neighborhood);
+
+      $script->addLabel('select_container');
+
+      $prompt = array();
+      $prompt[] = v('Please select the the container id. ');
+      $ivr_key = 1;
+      foreach ($containers as $key => $container) {
+        $prompt[] = v('For ');
+        $prompt[] = v($container['location_name']);
+        $prompt[] = v(' dial ');
+        $prompt[] = v($ivr_key);
+        $ivr_key++;
+      }
+      $timeout = 5;
+      $end_key = '';
+      $num_digits = 1;
+      $script->addGetInput($prompt, $num_digits, $end_key, $timeout);
+
+      $script->addGotoIf('container_name', "^_voipdrupal_ntxuva_validate_container(%neighborhood, %input_digits)");
+
+      $script->addGotoIf('set_container', "^%container_name != ''");
+      $script->addSay(v('Invalid option selected. Please try again. '));
+      $script->addGoto('select_container');
+
+      $script->addLabel('set_container');
+      $script->addSet('container', '^_voipdrupal_ntxuva_set_container(%neighborhood, %input_digits)');
+      $script->addSay(v('You selected container number: '));
+      $script->addSay('%container ');
+      $script->addSay('%container_name');
+
+      $script->addReturn();
+      break;
+    case 'voipdrupal_ntxuva_record_and_submit':
+      $script = new VoipScript('voipdrupal_ntxuva_record_and_submit');
+      $voice = $options['voice'];
+      voipvoice_set_current_voice($voice);
+
+
+
+
+
+      $script->addLabel('record_message');
+      $prompt = v("Please record your report after the beep. When done, press the star key. "); // Please, record your message after the beep. To end, press star.
+      $timeout = 5;
+      $end_key = '*';
+      $max_length = 3600; //1 hour
+      $script->addRecord($prompt, $timeout, $end_key, $max_length);
 
       $script->addLabel('play_menu');
       $prompt = v("To listen to your report, dial 1. To record it once again, dial 2. To accept it, dial 3. "); // To accept, dial 1. To record once again, press 2.
@@ -437,11 +547,17 @@ function _voipdrupal_ntxuva_problem_type_needs_container($digit) {
   }
 }
 
-function _voipdrupal_ntxuva_validate_container($neighborhood_id, $container_id) {
-  watchdog('debug', "_voipdrupal_ntxuva_validate_container($neighborhood_id, $container_id)");
-  $neighborhood = voipdrupal_ntxuva_get_neighborhood_name($neighborhood_id);
-  $containers = variable_get('voipdrupal_ntxuva_containers', array());
-  return isset($containers[$neighborhood][$container_id]) ? $containers[$neighborhood][$container_id]['location_name'] : '';
+function _voipdrupal_ntxuva_validate_container($neighborhood_id, $input_digits) {
+  $key = $input_digits+1;
+  watchdog('debug', "_voipdrupal_ntxuva_validate_container($neighborhood_id, $input_digits)");
+  $containers = voipdrupal_ntxuva_get_containers_for_neighborhood($neighborhood_id);
+  return isset($containers[$key]) ? $containers[$key]['location_name'] : '';
+}
+
+function _voipdrupal_ntxuva_set_container($neighborhood_id, $input_digits) {
+  $key = $input_digits+1;
+  $containers = voipdrupal_ntxuva_get_containers_for_neighborhood($neighborhood_id);
+  return isset($containers[$key]) ? $containers[$key]['location_id'] : '';
 }
 
 function _voipdrupal_ntxuva_validate_quarter($neighborhood_id, $quarter_id) {
