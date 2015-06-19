@@ -314,8 +314,7 @@ function voipdrupal_ntxuva_voipscript_load_script($script_name, $options = NULL)
 
       $script->addLabel('set_container');
       $script->addSet('container', '^_voipdrupal_ntxuva_set_container(%neighborhood, %input_digits)');
-      $script->addSay(v('You selected container number: '));
-      $script->addSay('%container ');
+      $script->addSay(v('You selected container: '));
       $script->addSay('%container_name');
 
       $script->addReturn();
