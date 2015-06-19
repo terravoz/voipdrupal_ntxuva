@@ -294,7 +294,7 @@ function voipdrupal_ntxuva_voipscript_load_script($script_name, $options = NULL)
       $script->addLabel('select_container');
 
       $prompt = array();
-      $prompt[] = v('Please select the the container id. ');
+      $prompt[] = v('Please select the container id. ');
       foreach ($containers as $key => $container) {
         $ivr_key = $key+1;
         $prompt[] = v('For ');
